@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 #include "parser.h"
 
 #include "client.h"
@@ -12,9 +13,10 @@ static void app(const char *address)
 	SOCKET sock = init_connection(address);
 	char buffer[BUF_SIZE];
 	char* tok;
-	char ** toks=(char**)malloc(sizeof(char*));
+	char ** toks=(char**)malloc(5*sizeof(char*));
 	int nb_args=0;
 	char* user;
+	const char split[2] = "/";
 	fd_set rdfs;
 
 
@@ -22,53 +24,63 @@ static void app(const char *address)
 	printf("Quelle est votre nom\n");
 	fgets(buffer, BUF_SIZE - 1, stdin);
 	user=strdup(buffer);
+	user[strlen(user)-1]='\0';
+	
+	sprintf(buffer,"CONNEXION/%s/\n",user);
+
+	write_server(sock,buffer);
+	
+	int n = read_server(sock, buffer);
+
+		/* server down */
+	if(n == 0)
+	{
+		printf("Server disconnected !\n");
+		return;
+	}
+
+	tok=strtok(buffer,split);
+
+	while(tok!=NULL){
+		toks[nb_args++]=strdup(tok);
+		tok=strtok(NULL,split);
+	}
+
+	if(strcmp(toks[0],"BIENVENUE")==0){
+		printf("on a recu Bienvenue %s \n placement %s \n tirage %s \n phase %s \n temps %s\n", user,toks[1],toks[2],toks[3],toks[4]);
+	}else {
+		printf("REFUUUUS\n");
+		return;
+	}
 
 
 	while(1)
 	{
-		FD_ZERO(&rdfs);
-
-/* add STDIN_FILENO */
-		FD_SET(STDIN_FILENO, &rdfs);
-
-/* add the socket */
-		FD_SET(sock, &rdfs);
-
-		if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
-		{
-			perror("select()");
-			exit(errno);
-		}
-
-/* something from standard input : i.e keyboard */
-		if(FD_ISSET(STDIN_FILENO, &rdfs))
-		{
+			
 			nb_args=0;
 			printf("pour jouer selectionnez une commande ci dessous\n");
-			printf("\t CONNEXION\n");
 			printf("\t SORT\n");
 			printf("\t TROUVE\n");
 
 			fgets(buffer, BUF_SIZE - 1, stdin);
 
-
-			if(strcmp(buffer,"SORT")){
-				sprintf(buffer,"SORT/%s/",user);
+			if(strcmp(buffer,"SORT\n")==0){
+				sprintf(buffer,"SORT/%s/\n",user);
 				write_server(sock,buffer);
 				break;
 			}
-			if(strcmp(buffer,"CONNEXION")){
-				sprintf(buffer,"SORT/%s/",user);
-			}
-			if(strcmp(buffer,"TROUVE")){
+			else if(strcmp(buffer,"TROUVE\n")==0){
 				scrabble* tmp=readInFic(FIC);
-				sprintf(buffer,"TROUVE/%s/",toString(tmp));
+				sprintf(buffer,"TROUVE/%s/\n",parseOut(tmp));
+			}else{
+				printf("commande inconnue\n");
+				continue;
 			}
 
 			write_server(sock,buffer);
 
 			int n = read_server(sock, buffer);
-			
+
 			/* server down */
 			if(n == 0)
 			{
@@ -77,15 +89,16 @@ static void app(const char *address)
 			}
 
 
-			while((tok=strsep(&buffer,"/"))!=NULL){
+			tok=strtok(buffer,split);
+
+			while(tok!=NULL){
 				free(toks[nb_args]);
 				toks[nb_args++]=strdup(tok);
+				tok=strtok(NULL,split);
 			}
 
-			if(strcmp(toks[0],"BIENVENUE")==0){
-				printf("on a recu Bienvenue %s \n", user);
-			}
-			else if(strcmp(toks[0],"REFUS")==0){
+
+			if(strcmp(toks[0],"REFUS")==0){
 				printf("Refus de la connection \n");
 			}
 			else if(strcmp(toks[0],"CONNECTE")==0){
@@ -131,7 +144,7 @@ static void app(const char *address)
 				printf("Commande inconnue et ignore\n");
 			}
 		}
-	}
+		
 
 
 	end_connection(sock);
@@ -204,15 +217,15 @@ static void write_server(SOCKET sock, const char *buffer)
 
 int main(int argc, char **argv)
 {
-if(argc < 1)
-{
-printf("Usage : %s [address] \n", argv[0]);
-return EXIT_FAILURE;
-}
+	if(argc == 1)
+	{
+		printf("Usage : %s [address] \n", argv[0]);
+		argv[1]="localhost";
+	}
 
-app(argv[1]);
+	app(argv[1]);
 
 
-return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 

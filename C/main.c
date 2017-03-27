@@ -28,14 +28,18 @@ int main(int argc, char const *argv[]){
 
 	// freeScrabble(sc);
 
-	char* buf=strdup("CONNEXION/Yohann/25ans/Toutesesdents");
-	char** toks=(char**)malloc(sizeof(char*));
+	char* buf=strdup("CONNEXION/Yohann/25ans/Toutesesdents/");
+	char** toks=(char**)malloc(6*sizeof(char*));
 	char* tok;
 	int i=0;
-	while((tok=strsep(&buf,"/"))!=NULL){
-		toks[i++]=strdup(tok);
-	}
+	const char split[2] = "/";
+	tok=strtok(buf,split);
 
+	while(tok!=NULL){
+		free(toks[i]);
+		toks[i++]=strdup(tok);
+		tok=strtok(NULL,split);
+	}
 	int j;
 	for(j=0;j<i;j++){
 		printf("%s\n", toks[j]);
