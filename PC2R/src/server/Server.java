@@ -1,75 +1,91 @@
 package server;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import enums.ClientState;
+import enums.PartieState;
+import server.staticvalue.StaticRequete;
+import service.ScrabbleService;
 
 public class Server {
-    private ServerSocket Ssock;
+	private ServerSocket			Ssock;
+	private ArrayList<ClientThread>	listClient	= new ArrayList<ClientThread>();
+	private ScrabbleService			partie		= new ScrabbleImpl();
+	private PartieState				partieState	= PartieState.debut;
+	private Chrono					chronoTour	= new Chrono();
 
-    public Server(int port) throws IOException {
-	Ssock = new ServerSocket(port);
-    }
-
-    public static void handle(Socket sock) throws IOException {
-
-	Byte[] buffer = new Byte[1024];
-	BufferedReader inBR = new BufferedReader(new InputStreamReader(
-		sock.getInputStream()));
-	BufferedWriter outBW= new BufferedWriter(new OutputStreamWriter(
-		sock.getOutputStream()));
-	
-	while(true){
-	    System.out.println("debut while (handle)");
-	    String received=inBR.readLine();
-	    String[] tok=received.split("/");
-	    System.out.println("recu "+ received);
-	    if(tok[0].equals("CONNEXION")){
-		outBW.write(" retour : Bienvenue "+tok[1] );
-		outBW.flush();
-	    }
-	    
-	    
+	public Server(int port) throws IOException {
+		Ssock = new ServerSocket(port);
+		partie.init();
 	}
-	
-	
-	
-	
-	
-    }
 
-    public static void main(String[] args) {
+	public ArrayList<ClientThread> getListClient() {
+		return listClient;
+	}
 
-	try {
-	    Server server = new Server(Integer.parseInt(args[0]));
+	public static void main(String[] args) {
 
-	    while (true) {
-		System.out.println("debut while (main)");
-		Socket sock = server.Ssock.accept();
+		try {
+			Server server = new Server(Integer.parseInt(args[0]));
 
-		Thread t=new Thread(){
-		    public void run(){
-			try {
-			    handle(sock);
-			} catch (IOException e) {
-			    // TODO Auto-generated catch block
-			    e.printStackTrace();
+			while (true) {
+				Socket sock = server.Ssock.accept();
+				ClientThread t = new ClientThread(sock, server);
+				server.getListClient().add(t);
+				t.start();
 			}
-		    }
-		};
-		t.start();
-		
-	    }
 
-	} catch (NumberFormatException | IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+		} catch (NumberFormatException | IOException e) {
+			e.printStackTrace();
+		}
 	}
-    }
+
+	public void disconnect(ClientThread clientThread) {
+		System.out.println("disconnect " + clientThread.getNom());
+		getListClient().remove(clientThread);
+		if (clientThread.getClientState() == ClientState.playing)
+			for (ClientThread ct : listClient) {
+				if (ct.getClientState() == ClientState.playing) {
+					try {
+						String ret = StaticRequete.deconnexion + "/"
+								+ clientThread.getNom() + "/";
+						ct.getOutBW().write(ret);
+						ct.getOutBW().flush();
+					} catch (IOException e) {
+						System.err.println("j'ai pas le droit");
+					}
+				}
+			}
+	}
+
+	public String retourConnection() {
+		String ret = StaticRequete.bienvenue + "/" + partie.send() + "/";
+		return ret;
+	}
+
+	public boolean alreadyExist(String nom) {
+		if (nom == null)
+			return true;
+		for (ClientThread clientThread : listClient) {
+			if (nom.equals(clientThread.getNom()))
+				return true;
+		}
+		return false;
+	}
+
+	public PartieState getPartieState() {
+		return partieState;
+	}
+
+	public void setPartieState(PartieState partieState) {
+		this.partieState = partieState;
+	}
+
+	public int getChronoTour() {
+		return chronoTour.getTemps();
+	}
+
 }

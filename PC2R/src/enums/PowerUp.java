@@ -1,4 +1,4 @@
-package ENUM;
+package enums;
 
 public enum PowerUp {
     Lx2(2),Lx3(3),Mx2(1),Mx3(1),Normal(1);

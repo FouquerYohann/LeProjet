@@ -1,6 +1,6 @@
 package dictionnaire;
 
-import ENUM.Lettre;
+import enums.Lettre;
 
 public interface IDico {
     public boolean isMotValide(Lettre[] mot);

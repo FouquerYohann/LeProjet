@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import enums.Lettre;
 import patricia.interfaces.INode;
 import patricias.Node;
-import ENUM.Lettre;
 
 public class Dico implements IDico {
     private static final INode patTree=getDico();

@@ -2,8 +2,8 @@ package contract;
 
 import java.util.Collection;
 
-import ENUM.Lettre;
-import ENUM.PowerUp;
+import enums.Lettre;
+import enums.PowerUp;
 import service.ScrabbleService;
 
 public class ScrabbleDecorator implements ScrabbleService {

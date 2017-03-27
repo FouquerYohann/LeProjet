@@ -1,12 +1,9 @@
-package ENUM;
+package enums;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Vector;
 
 public enum Lettre {
@@ -40,6 +37,7 @@ public enum Lettre {
 		    ret.add(Lettre.values()[pos]);
 		}
 	    }
+	    br.close();
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}

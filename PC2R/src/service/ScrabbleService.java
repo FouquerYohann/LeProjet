@@ -2,8 +2,8 @@ package service;
 
 import java.util.Collection;
 
-import ENUM.Lettre;
-import ENUM.PowerUp;
+import enums.Lettre;
+import enums.PowerUp;
 
 public interface ScrabbleService {
 

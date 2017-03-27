@@ -8,10 +8,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 import service.ScrabbleService;
-import ENUM.Lettre;
-import ENUM.PowerUp;
 import dictionnaire.Dico;
 import dictionnaire.IDico;
+import enums.Lettre;
+import enums.PowerUp;
 
 public class ScrabbleContract extends ScrabbleDecorator {
 
