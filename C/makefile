@@ -19,7 +19,7 @@ INCS = parser.h \
 
 #.c
 SOURCES = client.c \
-	  parser.c \
+	 	parser.c \
 
 
 OBJS = $(SOURCES:.c=.o)
