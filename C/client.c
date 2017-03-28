@@ -10,12 +10,20 @@
 
 static void app(const char *address)
 {
+	scrabble* sc=initScrabble();
+	char* score;
+	char* user;
+	char* chrono;
+	char* phase;
+	char** other_users;
+	int number_users=0;
+
+
+
 	SOCKET sock = init_connection(address);
 	char buffer[BUF_SIZE];
-	char* tok;
 	char ** toks=(char**)malloc(5*sizeof(char*));
 	int nb_args=0;
-	char* user;
 	const char split[2] = "/";
 	fd_set rdfs;
 
@@ -25,29 +33,28 @@ static void app(const char *address)
 	fgets(buffer, BUF_SIZE - 1, stdin);
 	user=strdup(buffer);
 	user[strlen(user)-1]='\0';
-	
+
 	sprintf(buffer,"CONNEXION/%s/\n",user);
 
 	write_server(sock,buffer);
-	
+
 	int n = read_server(sock, buffer);
 
-		/* server down */
+/* server down */
 	if(n == 0)
 	{
 		printf("Server disconnected !\n");
 		return;
 	}
 
-	tok=strtok(buffer,split);
-
-	while(tok!=NULL){
-		toks[nb_args++]=strdup(tok);
-		tok=strtok(NULL,split);
-	}
+	nb_args=string_split(toks,buffer,split);
 
 	if(strcmp(toks[0],"BIENVENUE")==0){
 		printf("on a recu Bienvenue %s \n placement %s \n tirage %s \n phase %s \n temps %s\n", user,toks[1],toks[2],toks[3],toks[4]);
+		sprintf(buffer,"%s%s",toks[1],toks[2]);
+		parseScrabble(sc,buffer);
+		phase=strdup(toks[3]);
+		chrono=strdup(toks[4]);
 	}else {
 		printf("REFUUUUS\n");
 		return;
@@ -56,12 +63,22 @@ static void app(const char *address)
 
 	while(1)
 	{
-			
-			nb_args=0;
-			printf("pour jouer selectionnez une commande ci dessous\n");
-			printf("\t SORT\n");
-			printf("\t TROUVE\n");
+		FD_ZERO(&rdfs);
 
+		/* add STDIN_FILENO */
+		FD_SET(STDIN_FILENO, &rdfs);
+
+		/* add the socket */
+		FD_SET(sock, &rdfs);
+		print_menu();
+
+		if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+		{
+			perror("select()");
+			exit(errno);
+		}
+
+		if(FD_ISSET(STDIN_FILENO,&rdfs)){
 			fgets(buffer, BUF_SIZE - 1, stdin);
 
 			if(strcmp(buffer,"SORT\n")==0){
@@ -78,7 +95,8 @@ static void app(const char *address)
 			}
 
 			write_server(sock,buffer);
-
+		}
+		else if(FD_ISSET(sock,&rdfs)){
 			int n = read_server(sock, buffer);
 
 			/* server down */
@@ -88,48 +106,70 @@ static void app(const char *address)
 				break;
 			}
 
-
-			tok=strtok(buffer,split);
-
-			while(tok!=NULL){
-				free(toks[nb_args]);
-				toks[nb_args++]=strdup(tok);
-				tok=strtok(NULL,split);
-			}
+			nb_args=string_split(toks,buffer,split);
 
 
-			if(strcmp(toks[0],"REFUS")==0){
-				printf("Refus de la connection \n");
-			}
-			else if(strcmp(toks[0],"CONNECTE")==0){
+			if(strcmp(toks[0],"CONNECTE")==0){
 				printf("Un nouveau joueur est arrivé : %s\n", toks[1]);
+				other_users[number_users++]=strdup(toks[1]);
 			}
 			else if(strcmp(toks[0],"DECONNEXION")==0){
-				printf("Le joueur %s c'est deconnecte\n", toks[1]);
+				printf("Le joueur %s s'est deconnecte\n", toks[1]);
+				int i=0;
+				for (i=0;i<number_users;i++){
+						if(strcmp(toks[1],other_users[i])==0){
+							int j;
+							for(j=i;j<number_users-1;j++){
+								free(other_users[j]);
+								other_users[j]=strdup[j+1];
+							}
+							free(other_users[number_users--]);
+							break;
+						}
+					}
+				}
 			}
 			else if(strcmp(toks[0],"SESSION")==0){
 				printf("debut d'une nouvelle session\n");
+				phase=strdup("recherche");
+				chrono=strdup("Chrono a IMPLEMENTER");
+				score=strdup("0");
+				printf("%s\n",toString(sc));
+				WriteinFic(FIC,sc);
 			}
 			else if(strcmp(toks[0],"VAINQUEUR")==0){
 				printf("la partie est fini. Le bilan %s",toks[1]);
 			}
 			else if(strcmp(toks[0],"TOUR")==0){
 				printf("un nouveau tour. plateau %s tirage %s\n",toks[1],toks[2]);
+				sprintf(buffer,"%s%s",placement,tirage);
+				parseScrabble(sc,buffer);
+				printf("%s\n", toString(sc));
+				WriteinFic(FIC,sc);
 			}
 			else if(strcmp(toks[0],"RVALIDE")==0){
 				printf("Placement valide, fin de la phase de recherche\n");
+				free(phase);
+				phase=strdup("SOUMISSION");
+				free(chrono);
+				strdup("CHRONO A IMPLEMENTER");
 			}
 			else if(strcmp(toks[0],"RINVALIDE")==0){
 				printf("placement invalide pour la raison %s\n",toks[1]);
+				WriteinFic(FIC,sc);
 			}
 			else if(strcmp(toks[0],"RATROUVE")==0){
 				printf("le joueur %s a trouve un mot fin de la phase de recherche\n", toks[1]);
 			}
 			else if(strcmp(toks[0],"RFIN")==0){
 				printf("expiration du delai de recherche, fin de la phase de recherche\n");
+				free(chrono);
+				strdup("CHRONO A IMPLEMENTER");
 			}
 			else if(strcmp(toks[0],"SVALIDE")==0){
 				printf("soumission valide\n");
+
+				pritnf();
 			}
 			else if(strcmp(toks[0],"SINVALIDE")==0){
 				printf("soumission invalide pour la raison %s\n",toks[1] );
@@ -144,7 +184,8 @@ static void app(const char *address)
 				printf("Commande inconnue et ignore\n");
 			}
 		}
-		
+	}
+
 
 
 	end_connection(sock);
@@ -214,12 +255,32 @@ static void write_server(SOCKET sock, const char *buffer)
 
 
 
+int string_split(char** tabs,char* string_to_split,const char* delim ){
+
+	int retour=0;
+	char* tok=strtok(string_to_split,delim);
+
+	while(tok!=NULL){
+		//if(tabs[retour] !=NULL)
+			//free(tabs[retour]);
+		tabs[retour++]=strdup(tok);
+		tok=strtok(NULL,delim);
+	}
+	return retour;
+}
+
+void print_menu(){
+	printf("pour jouer selectionnez une commande ci dessous\n");
+	printf("\t SORT\n");
+	printf("\t TROUVE\n");
+}
 
 int main(int argc, char **argv)
 {
 	if(argc == 1)
 	{
 		printf("Usage : %s [address] \n", argv[0]);
+		printf("Utilisation de localhost\n");
 		argv[1]="localhost";
 	}
 

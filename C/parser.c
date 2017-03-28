@@ -66,6 +66,9 @@ void parseScrabble(scrabble* sc,char* toParse){
 			iter++;
 		}
 	}
+	if(!toParse[iter++]=="/"){
+		fprintf(stderr, "Probleme dans le parseScrabble en C\n");
+	}
 	for (i = 0; i < 7; ++i){
 		tirage[i]=toParse[iter];
 		iter++;
@@ -105,7 +108,7 @@ char* parseOut(scrabble* sc){
 	int j;
 	int i;
 	int iter=0;
-	char* retS=(char*)malloc(sizeof(char)*233);
+	char* retS=(char*)malloc(sizeof(char)*234);
 	char** grille=sc->grille;
 	char*  tirage=sc->tirage;
 	for (j = 0; j < 15; ++j){
@@ -114,6 +117,7 @@ char* parseOut(scrabble* sc){
 			iter++;
 		}
 	}
+	retS[iter++]="/";
 	for (i = 0; i < 7; ++i){
 		retS[iter]=tirage[i];
 		iter++;
