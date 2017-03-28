@@ -117,35 +117,35 @@ static void app(const char *address)
 				printf("Le joueur %s s'est deconnecte\n", toks[1]);
 				int i=0;
 				for (i=0;i<number_users;i++){
-						if(strcmp(toks[1],other_users[i])==0){
-							int j;
-							for(j=i;j<number_users-1;j++){
-								free(other_users[j]);
-								other_users[j]=strdup[j+1];
-							}
-							free(other_users[number_users--]);
-							break;
+					if(strcmp(toks[1],other_users[i])==0){
+						int j;
+						for(j=i;j<number_users-1;j++){
+							free(other_users[j]);
+							other_users[j]=strdup(other_users[j+1]);
 						}
+						free(other_users[number_users--]);
+						break;
 					}
 				}
 			}
+
 			else if(strcmp(toks[0],"SESSION")==0){
 				printf("debut d'une nouvelle session\n");
 				phase=strdup("recherche");
 				chrono=strdup("Chrono a IMPLEMENTER");
 				score=strdup("0");
 				printf("%s\n",toString(sc));
-				WriteinFic(FIC,sc);
+				writeInFic(FIC,sc);
 			}
 			else if(strcmp(toks[0],"VAINQUEUR")==0){
 				printf("la partie est fini. Le bilan %s",toks[1]);
 			}
 			else if(strcmp(toks[0],"TOUR")==0){
 				printf("un nouveau tour. plateau %s tirage %s\n",toks[1],toks[2]);
-				sprintf(buffer,"%s%s",placement,tirage);
+				sprintf(buffer,"%s%s",toks[1],toks[2]);
 				parseScrabble(sc,buffer);
 				printf("%s\n", toString(sc));
-				WriteinFic(FIC,sc);
+				writeInFic(FIC,sc);
 			}
 			else if(strcmp(toks[0],"RVALIDE")==0){
 				printf("Placement valide, fin de la phase de recherche\n");
@@ -156,7 +156,7 @@ static void app(const char *address)
 			}
 			else if(strcmp(toks[0],"RINVALIDE")==0){
 				printf("placement invalide pour la raison %s\n",toks[1]);
-				WriteinFic(FIC,sc);
+				writeInFic(FIC,sc);
 			}
 			else if(strcmp(toks[0],"RATROUVE")==0){
 				printf("le joueur %s a trouve un mot fin de la phase de recherche\n", toks[1]);
@@ -168,8 +168,6 @@ static void app(const char *address)
 			}
 			else if(strcmp(toks[0],"SVALIDE")==0){
 				printf("soumission valide\n");
-
-				pritnf();
 			}
 			else if(strcmp(toks[0],"SINVALIDE")==0){
 				printf("soumission invalide pour la raison %s\n",toks[1] );
@@ -184,9 +182,9 @@ static void app(const char *address)
 				printf("Commande inconnue et ignore\n");
 			}
 		}
+
+
 	}
-
-
 
 	end_connection(sock);
 }
