@@ -32,7 +32,7 @@ public class Server {
 		Server server = null;
 		try {
 			if (args.length == 0)
-				server = new Server(portDefault);
+			    server = new Server(portDefault);
 			else
 				server = new Server(Integer.parseInt(args[0]));
 
@@ -52,15 +52,14 @@ public class Server {
 		System.out.println("disconnect " + clientThread.getNom());
 		getListClient().remove(clientThread);
 		if (clientThread.getClientState() == ClientState.playing)
-			for (ClientThread ct : listClient) {
-				if (ct.getClientState() == ClientState.playing) {
-					String ret = StaticRequete.deconnexion + "/"
-							+ clientThread.getNom() + "/";
-					ct.write(ret);
-				}
+		    for (ClientThread ct : listClient) {
+			if (ct.getClientState() == ClientState.playing) {
+			String ret = StaticRequete.deconnexion + "/"
+			        + clientThread.getNom() + "/";
+			ct.write(ret);
+			}
 			}
 	}
-
 
 	public String retourConnection() {
 		String ret = StaticRequete.bienvenue + "/" + partie.send() + "/";
@@ -69,10 +68,10 @@ public class Server {
 
 	public boolean alreadyExist(String nom) {
 		if (nom == null)
-			return true;
+		    return true;
 		for (ClientThread clientThread : listClient) {
 			if (nom.equals(clientThread.getNom()))
-				return true;
+			    return true;
 		}
 		return false;
 	}
@@ -81,7 +80,7 @@ public class Server {
 		return gameThread.getPartieState();
 	}
 
-	public void setPartieState(PartieState partieState) {
+	public synchronized void setPartieState(PartieState partieState) {
 		this.gameThread.setPartieState(partieState);
 	}
 
@@ -113,6 +112,10 @@ public class Server {
 				cT.write(StaticRequete.session + "/");
 			}
 		}
+	}
+
+	public void resultat() throws IOException {
+
 	}
 
 }
