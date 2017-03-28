@@ -15,8 +15,8 @@ public class Server {
 	private ServerSocket			Ssock;
 	private ArrayList<ClientThread>	listClient	= new ArrayList<ClientThread>();
 	private ScrabbleService			partie		= new ScrabbleImpl();
-	private PartieState				partieState	= PartieState.debut;
 	private Chrono					chronoTour	= new Chrono();
+	private GameThread				gameThread	= new GameThread(this);
 
 	public Server(int port) throws IOException {
 		Ssock = new ServerSocket(port);
@@ -61,6 +61,7 @@ public class Server {
 			}
 	}
 
+
 	public String retourConnection() {
 		String ret = StaticRequete.bienvenue + "/" + partie.send() + "/";
 		return ret;
@@ -77,38 +78,39 @@ public class Server {
 	}
 
 	public PartieState getPartieState() {
-		return partieState;
+		return gameThread.getPartieState();
 	}
 
 	public void setPartieState(PartieState partieState) {
-		this.partieState = partieState;
+		this.gameThread.setPartieState(partieState);
 	}
 
-	public int getChronoTour() {
+	public int getTempsTour() {
 		return chronoTour.getTemps();
 	}
 
+	public Chrono getChronoTour() {
+		return chronoTour;
+	}
+
 	public void connecte(String string) {
-		boolean premier=true;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
-				if (cT.getNom().equals(string))
+				if (cT.getNom().equals(string)) {
 					continue;
+				}
 				cT.write(StaticRequete.connecte + "/" + string + "/");
-				premier=false;
 			}
 		}
-		if(premier)debutPartie();
-		
 	}
-	
-	public void debutPartie(){
-		partieState = PartieState.recherche;
+
+	public void debutPartie() {
+		setPartieState(PartieState.recherche);
 		chronoTour.start();
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.setSc(partie);
-				cT.write(StaticRequete.session+"/");
+				cT.write(StaticRequete.session + "/");
 			}
 		}
 	}

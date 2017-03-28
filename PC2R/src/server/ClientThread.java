@@ -40,10 +40,9 @@ public class ClientThread extends Thread {
 	public void run() {
 		try {
 			handle(sock);
-		} catch (IOException e) {
-			System.err.println("IN RUN");
+		} catch (Throwable e) {
+			System.err.println(e.getMessage());
 			disconnect();
-			e.printStackTrace();
 		}
 	}
 
@@ -69,7 +68,7 @@ public class ClientThread extends Thread {
 				clientState = ClientState.playing;
 				write(server.retourConnection() + score + "/"
 						+ server.getPartieState().getValue() + "/"
-						+ server.getChronoTour() + "/");
+						+ server.getTempsTour() + "/");
 				server.connecte(tok[1]);
 
 			} else if (requete.equals(StaticRequete.sort) && tok.length == 2) {
