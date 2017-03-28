@@ -7,4 +7,5 @@ public class StaticRequete {
 	public static final String	connecte	= "CONNECTE";
 	public static final String	sort		= "SORT";
 	public static final String	deconnexion	= "DECONNEXION";
+	public static final String	error		= "ERREUR";
 }

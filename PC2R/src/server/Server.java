@@ -11,6 +11,7 @@ import server.staticvalue.StaticRequete;
 import service.ScrabbleService;
 
 public class Server {
+	private final static int		portDefault	= 2017;
 	private ServerSocket			Ssock;
 	private ArrayList<ClientThread>	listClient	= new ArrayList<ClientThread>();
 	private ScrabbleService			partie		= new ScrabbleImpl();
@@ -19,6 +20,7 @@ public class Server {
 
 	public Server(int port) throws IOException {
 		Ssock = new ServerSocket(port);
+		System.out.println("Server initialized on port "+port);
 		partie.init();
 	}
 
@@ -27,9 +29,12 @@ public class Server {
 	}
 
 	public static void main(String[] args) {
-
+		Server server = null;
 		try {
-			Server server = new Server(Integer.parseInt(args[0]));
+			if (args.length == 0)
+				server = new Server(portDefault);
+			else
+				server = new Server(Integer.parseInt(args[0]));
 
 			while (true) {
 				Socket sock = server.Ssock.accept();
@@ -50,8 +55,7 @@ public class Server {
 			for (ClientThread ct : listClient) {
 				if (ct.getClientState() == ClientState.playing) {
 					try {
-						String ret = StaticRequete.deconnexion + "/"
-								+ clientThread.getNom() + "/";
+						String ret = StaticRequete.deconnexion + "/" + clientThread.getNom() + "/";
 						ct.getOutBW().write(ret);
 						ct.getOutBW().flush();
 					} catch (IOException e) {
@@ -86,6 +90,19 @@ public class Server {
 
 	public int getChronoTour() {
 		return chronoTour.getTemps();
+	}
+
+	public void connecte(String string) {
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				if(cT.getNom().equals(string))continue;
+				try {
+					cT.getOutBW().write(StaticRequete.connecte + "/" + string + "/");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 }

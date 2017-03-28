@@ -59,33 +59,46 @@ public class ClientThread extends Thread {
 				continue;
 			}
 			String requete = tok[0];
+			//CONNEXION
 			if (requete.equals(StaticRequete.connexion) && tok.length == 2) {
 				try {
 					setNom(tok[1]);
 				} catch (Exception e) {
 					System.out.println(StaticRequete.refus);
-					outBW.write(StaticRequete.refus + "/");
-					outBW.flush();
+					write(StaticRequete.refus + "/");
 					disconnect();
 					return;
 				}
 				clientState = ClientState.playing;
-				outBW.write(server.retourConnection() + score + "/"
+				write(server.retourConnection() + score + "/"
 						+ server.getPartieState().getValue() + "/"
 						+ server.getChronoTour() + "/");
-				outBW.flush();
+				server.connecte(tok[1]);
 
 			} else if (requete.equals(StaticRequete.sort) && tok.length == 2) {
 				if (tok[1].equals(nom)) {
 					disconnect();
 					return;
 				}
+			}else{
+				//DEFAULT
+				write(StaticRequete.error+"/");
+				
 			}
 
 		}
 
 	}
 
+	public void write(String str){
+		try{
+			outBW.write(str);
+			outBW.flush();
+		}catch(IOException e){
+			System.err.println("Error write");
+		}
+	}
+	
 	public void setNom(String nom) throws Exception {
 		if (server.alreadyExist(nom))
 			throw new Exception();
