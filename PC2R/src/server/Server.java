@@ -11,7 +11,7 @@ import server.staticvalue.StaticRequete;
 import service.ScrabbleService;
 
 public class Server {
-	private final static int		portDefault	= 2017;
+	private final static int		portDefault	= 2018;
 	private ServerSocket			Ssock;
 	private ArrayList<ClientThread>	listClient	= new ArrayList<ClientThread>();
 	private ScrabbleService			partie		= new ScrabbleImpl();
@@ -20,7 +20,7 @@ public class Server {
 
 	public Server(int port) throws IOException {
 		Ssock = new ServerSocket(port);
-		System.out.println("Server initialized on port "+port);
+		System.out.println("Server initialized on port " + port);
 		partie.init();
 	}
 
@@ -54,13 +54,9 @@ public class Server {
 		if (clientThread.getClientState() == ClientState.playing)
 			for (ClientThread ct : listClient) {
 				if (ct.getClientState() == ClientState.playing) {
-					try {
-						String ret = StaticRequete.deconnexion + "/" + clientThread.getNom() + "/";
-						ct.getOutBW().write(ret);
-						ct.getOutBW().flush();
-					} catch (IOException e) {
-						System.err.println("j'ai pas le droit");
-					}
+					String ret = StaticRequete.deconnexion + "/"
+							+ clientThread.getNom() + "/";
+					ct.write(ret);
 				}
 			}
 	}
@@ -93,14 +89,26 @@ public class Server {
 	}
 
 	public void connecte(String string) {
+		boolean premier=true;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
-				if(cT.getNom().equals(string))continue;
-				try {
-					cT.getOutBW().write(StaticRequete.connecte + "/" + string + "/");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				if (cT.getNom().equals(string))
+					continue;
+				cT.write(StaticRequete.connecte + "/" + string + "/");
+				premier=false;
+			}
+		}
+		if(premier)debutPartie();
+		
+	}
+	
+	public void debutPartie(){
+		partieState = PartieState.recherche;
+		chronoTour.start();
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				cT.setSc(partie);
+				cT.write(StaticRequete.session+"/");
 			}
 		}
 	}

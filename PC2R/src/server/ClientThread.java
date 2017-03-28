@@ -59,15 +59,12 @@ public class ClientThread extends Thread {
 				continue;
 			}
 			String requete = tok[0];
-			//CONNEXION
+			// CONNEXION
 			if (requete.equals(StaticRequete.connexion) && tok.length == 2) {
 				try {
 					setNom(tok[1]);
 				} catch (Exception e) {
-					System.out.println(StaticRequete.refus);
-					write(StaticRequete.refus + "/");
-					disconnect();
-					return;
+					refus();
 				}
 				clientState = ClientState.playing;
 				write(server.retourConnection() + score + "/"
@@ -77,28 +74,40 @@ public class ClientThread extends Thread {
 
 			} else if (requete.equals(StaticRequete.sort) && tok.length == 2) {
 				if (tok[1].equals(nom)) {
-					disconnect();
-					return;
+					throw new Error("disconnect");
 				}
-			}else{
-				//DEFAULT
-				write(StaticRequete.error+"/");
-				
+			} else {
+				// DEFAULT
+				error();
+
 			}
 
 		}
 
 	}
 
-	public void write(String str){
-		try{
+	public void refus() {
+		System.out.println(StaticRequete.refus);
+		write(StaticRequete.refus + "/");
+		throw new Error("refus");
+	}
+
+	public void error() {
+		System.out.println("requete inconnu");
+		write(StaticRequete.error + "/");
+	}
+
+	public void write(String str) {
+		System.out.println("\t" + this.getNom() + "[" + this.getName() + "] "
+				+ str);
+		try {
 			outBW.write(str);
 			outBW.flush();
-		}catch(IOException e){
+		} catch (IOException e) {
 			System.err.println("Error write");
 		}
 	}
-	
+
 	public void setNom(String nom) throws Exception {
 		if (server.alreadyExist(nom))
 			throw new Exception();
@@ -147,7 +156,9 @@ public class ClientThread extends Thread {
 			}
 			if (sock != null)
 				sock.close();
-		} catch (IOException e) {System.err.println("disconnect Thread");}
+		} catch (IOException e) {
+			System.err.println("disconnect Thread");
+		}
 
 	}
 }
