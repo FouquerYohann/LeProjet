@@ -1,5 +1,4 @@
-#include "parser.h"
-
+#include "scrabble.h"
 
 scrabble* initScrabble(){
 	int i ;
@@ -66,7 +65,7 @@ void parseScrabble(scrabble* sc,char* toParse){
 			iter++;
 		}
 	}
-	if(!toParse[iter++]=="/"){
+	if(!(toParse[iter++]=='/')){
 		fprintf(stderr, "Probleme dans le parseScrabble en C\n");
 	}
 	for (i = 0; i < 7; ++i){
@@ -117,7 +116,7 @@ char* parseOut(scrabble* sc){
 			iter++;
 		}
 	}
-	retS[iter++]="/";
+	retS[iter++]='/';
 	for (i = 0; i < 7; ++i){
 		retS[iter]=tirage[i];
 		iter++;

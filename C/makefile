@@ -14,13 +14,16 @@ LIBS= -lm
 EXEC = main.x
 
 #.h
-INCS = parser.h \
+INCS = scrabble.h \
 		client.h \
+		users.h \
+		partie.h
 
 #.c
 SOURCES = client.c \
-	 	parser.c \
-
+	 	scrabble.c \
+	 	users.c \
+	 	partie.c
 
 OBJS = $(SOURCES:.c=.o)
 
