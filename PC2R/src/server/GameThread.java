@@ -50,9 +50,9 @@ public class GameThread extends Observable implements Runnable {
 		partieState = PartieState.resultat;
 		setChanged();
 		notifyObservers();
-		synchronized (server) {
-			server.wait();
-		}
+//		synchronized (server) {
+//			server.wait();
+//		}
 	}
 
 	@Override
@@ -62,6 +62,7 @@ public class GameThread extends Observable implements Runnable {
 				debutRecherche();
 				debutSoumission();
 				debutResultat();
+				System.out.println("TOUR");
 			}
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();

@@ -170,7 +170,6 @@ public class Server implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		System.out.println("\t\tupdate!");
 		switch (gameThread.getPartieState()) {
 		case debut:
 			throw new Error("euh pas normal");
@@ -209,7 +208,7 @@ public class Server implements Observer {
 		// TODO bouchon
 		String mot = "anticonstitutionnellement";
 		String vainqueur = "justin";
-		return mot + "/" + vainqueur + "/" + score() + "/";
+		return mot + "/" + vainqueur + "/" + score();
 	}
 
 	public void setGameThread(GameThread gameThread) {
