@@ -45,6 +45,9 @@ users* addUserNameScore(users* us,char* name,char* score){
 }
 
 users* getUserByName(users* us, char* name){
+	if(us == NULL){
+		return NULL;
+	}
 	users* curr=us;
 
 	while(curr->next){
