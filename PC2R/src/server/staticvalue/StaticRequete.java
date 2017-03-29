@@ -16,5 +16,6 @@ public class StaticRequete {
 	public static final String 	rinvalide	= "RINVALIDE";
 	public static final String	ratrouve	= "RATROUVE";
 	public static final String	rfin		= "RFIN";
-	
+	public static final String	sfin		= "SFIN";
+	public static final String	bilan		= "BILAN";
 }

@@ -4,21 +4,26 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 import enums.ClientState;
 import enums.PartieState;
 import server.staticvalue.StaticRequete;
 import service.ScrabbleService;
 
-public class Server {
+public class Server implements Observer {
 	private final static int		portDefault	= 2018;
 	private ServerSocket			Ssock;
 	private ArrayList<ClientThread>	listClient	= new ArrayList<ClientThread>();
 	private ScrabbleService			partie		= new ScrabbleImpl();
 	private Chrono					chronoTour	= new Chrono();
 	private GameThread				gameThread	= new GameThread(this);
+	private boolean					fini		= true;
+	private int						tour		= 0;
 
 	public Server(int port) throws IOException {
+		gameThread.addObserver(this);
 		Ssock = new ServerSocket(port);
 		System.out.println("Server initialized on port " + port);
 		partie.init();
@@ -32,7 +37,7 @@ public class Server {
 		Server server = null;
 		try {
 			if (args.length == 0)
-			    server = new Server(portDefault);
+				server = new Server(portDefault);
 			else
 				server = new Server(Integer.parseInt(args[0]));
 
@@ -52,12 +57,12 @@ public class Server {
 		System.out.println("disconnect " + clientThread.getNom());
 		getListClient().remove(clientThread);
 		if (clientThread.getClientState() == ClientState.playing)
-		    for (ClientThread ct : listClient) {
-			if (ct.getClientState() == ClientState.playing) {
-			String ret = StaticRequete.deconnexion + "/"
-			        + clientThread.getNom() + "/";
-			ct.write(ret);
-			}
+			for (ClientThread ct : listClient) {
+				if (ct.getClientState() == ClientState.playing) {
+					String ret = StaticRequete.deconnexion + "/"
+							+ clientThread.getNom() + "/";
+					ct.write(ret);
+				}
 			}
 	}
 
@@ -68,10 +73,10 @@ public class Server {
 
 	public boolean alreadyExist(String nom) {
 		if (nom == null)
-		    return true;
+			return true;
 		for (ClientThread clientThread : listClient) {
 			if (nom.equals(clientThread.getNom()))
-			    return true;
+				return true;
 		}
 		return false;
 	}
@@ -93,19 +98,26 @@ public class Server {
 	}
 
 	public void connecte(String string) {
+		boolean premier=true;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				if (cT.getNom().equals(string)) {
 					continue;
 				}
+				premier=false;
 				cT.write(StaticRequete.connecte + "/" + string + "/");
 			}
 		}
+		if(premier)
+			debutPartie();
+		
 	}
 
 	public void debutPartie() {
-		setPartieState(PartieState.recherche);
+		fini=false;
+		System.out.println("Début partie");
 		chronoTour.start();
+		gameThread.start();
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.setSc(partie);
@@ -114,8 +126,99 @@ public class Server {
 		}
 	}
 
-	public void resultat() throws IOException {
+	private void tour() {
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				cT.write(StaticRequete.tour + "/" + partie.send() + "/");
+			}
+		}
+	}
+
+	private void soumission() {
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				cT.write(StaticRequete.rfin + "/");
+			}
+		}
+	}
+
+	private void resultat() {
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				cT.write(StaticRequete.sfin + "/");
+				cT.write(StaticRequete.bilan + "/" + bilanTour() + "/");
+			}
+		}
+		if(partie.isFini()){
+			fini=true;
+			finPartie();
+		}
+	}
+
+	private void finPartie(){
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				cT.write(StaticRequete.vainqueur + "/"+bilanPartie()+"/");
+			}
+		}
+	}
+	
+	private String bilanPartie(){
+		//TODO bouchon
+		String bilan = "bah c'est fini";
+		return bilan;
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) {
+		System.out.println("\t\tupdate!");
+		switch (gameThread.getPartieState()) {
+		case debut:
+			throw new Error("euh pas normal");
+		case recherche:
+			tour();
+			break;
+		case soumission:
+			soumission();
+			break;
+		case resultat:
+			resultat();
+			break;
+		default:
+			throw new Error("euh pas normal");
+
+		}
 
 	}
 
+	public boolean isFini() {
+		return fini;
+	}
+
+	private String score() {
+		//TODO bouchon
+		String scores = tour+"*";
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				scores+="*"+cT.getNom()+"*"+cT.getScore();
+			}
+		}
+		return scores;
+	}
+
+	private String bilanTour() {
+		//TODO bouchon
+		String mot = "anticonstitutionnellement";
+		String vainqueur = "justin";
+		return mot + "/" + vainqueur + "/" + score() + "/";
+	}
+
+	
+	public void setGameThread(GameThread gameThread) {
+		this.gameThread.deleteObserver(this);
+		this.gameThread = gameThread;
+		this.gameThread.addObserver(this);
+	}
+	
+	
 }

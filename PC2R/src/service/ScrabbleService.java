@@ -111,4 +111,6 @@ public interface ScrabbleService {
 
     public String send();
 
+	boolean isFini();
+
 }

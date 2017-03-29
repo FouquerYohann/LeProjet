@@ -306,4 +306,9 @@ public class ScrabbleImpl implements ScrabbleService {
 		return ret;
 	}
 
+	@Override
+	public boolean isFini() {
+		return sacALettre.isEmpty();
+	}
+
 }
