@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.TimeUnit;
 
 import enums.ClientState;
 import enums.PartieState;
@@ -105,9 +106,15 @@ public class Server implements Observer {
 				cT.write(StaticRequete.connecte + "/" + string + "/");
 			}
 		}
-		if (premier)
+		if (premier){
 			debutPartie();
-
+			try {
+				TimeUnit.SECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void debutPartie() {
@@ -129,6 +136,7 @@ public class Server implements Observer {
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.tour + "/" + partie.send() + "/");
+				cT.ResetScoreTour();
 			}
 		}
 	}
@@ -184,7 +192,6 @@ public class Server implements Observer {
 			break;
 		default:
 			throw new Error("euh pas normal");
-
 		}
 
 	}
@@ -194,7 +201,6 @@ public class Server implements Observer {
 	}
 
 	private String score() {
-		// TODO bouchon
 		String scores = tour + "";
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
@@ -205,9 +211,22 @@ public class Server implements Observer {
 	}
 
 	private String bilanTour() {
-		// TODO bouchon
 		String mot = "anticonstitutionnellement";
 		String vainqueur = "justin";
+		int bestScore = 0;
+		ScrabbleService best = null;
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				cT.updateScore();
+				int scoreIt = cT.getScoreTour();
+				if (scoreIt > bestScore) {
+					bestScore = scoreIt;
+					best = cT.getScJoue();
+					vainqueur = cT.getNom();
+				}
+			}
+		}
+		partie = best;
 		return mot + "/" + vainqueur + "/" + score();
 	}
 
@@ -215,6 +234,11 @@ public class Server implements Observer {
 		this.gameThread.deleteObserver(this);
 		this.gameThread = gameThread;
 		this.gameThread.addObserver(this);
+	}
+
+
+	public ScrabbleService getPartie() {
+		return partie;
 	}
 
 }

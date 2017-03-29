@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import enums.Lettre;
 import enums.PowerUp;
+import enums.Raisons;
 
 public interface ScrabbleService {
 
@@ -115,4 +116,5 @@ public interface ScrabbleService {
     
     public boolean isValidPlacement(String placement);
 
+    public Raisons raisonValide(String placement,ScrabbleService scrabblePlayer);
 }

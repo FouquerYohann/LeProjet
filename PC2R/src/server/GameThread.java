@@ -8,8 +8,8 @@ import enums.PartieState;
 public class GameThread extends Observable implements Runnable {
 	private Server				server;
 	private PartieState			partieState	= PartieState.debut;
-	public static final long	troisMin	= 10000;//180000;
-	public static final long	cinqMin		= 12000;//300000;
+	public static final long	troisMin	= 100000;//180000;
+	public static final long	cinqMin		= 120000;//300000;
 	
 
 	public GameThread(Server server) {

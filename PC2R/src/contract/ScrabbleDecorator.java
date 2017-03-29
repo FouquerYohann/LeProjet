@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import enums.Lettre;
 import enums.PowerUp;
+import enums.Raisons;
 import service.ScrabbleService;
 
 public class ScrabbleDecorator implements ScrabbleService {
@@ -69,7 +70,14 @@ public class ScrabbleDecorator implements ScrabbleService {
 	}
 
 	@Override
-        public boolean isValidPlacement(String placement) {
-	    return sc.isValidPlacement(placement);
-        }
+	public boolean isValidPlacement(String placement) {
+		return sc.isValidPlacement(placement);
+	}
+
+	@Override
+	public Raisons raisonValide(String placement,ScrabbleService fgdfg) {
+		return sc.raisonValide(placement,fgdfg);
+	}
+	
+	
 }
