@@ -291,4 +291,19 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	return false;
     }
 
+    public boolean isValidPlacement(String placement){
+	
+	checkInvariant();
+	
+	if(!(placement.length() == 225))
+		throw new PreConditionError("le placement ne fait pas 225 character");
+	
+	boolean retour= super.isValidPlacement(placement);
+	
+	checkInvariant();
+	
+	
+	return retour;
+	
+    }
 }
