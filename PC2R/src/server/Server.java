@@ -10,6 +10,7 @@ import java.util.Observer;
 import enums.ClientState;
 import enums.PartieState;
 import server.staticvalue.StaticRequete;
+import server.temps.Chrono;
 import service.ScrabbleService;
 
 public class Server implements Observer {
@@ -85,10 +86,6 @@ public class Server implements Observer {
 		return gameThread.getPartieState();
 	}
 
-	public synchronized void setPartieState(PartieState partieState) {
-		this.gameThread.setPartieState(partieState);
-	}
-
 	public int getTempsTour() {
 		return chronoTour.getTemps();
 	}
@@ -98,26 +95,27 @@ public class Server implements Observer {
 	}
 
 	public void connecte(String string) {
-		boolean premier=true;
+		boolean premier = true;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				if (cT.getNom().equals(string)) {
 					continue;
 				}
-				premier=false;
+				premier = false;
 				cT.write(StaticRequete.connecte + "/" + string + "/");
 			}
 		}
-		if(premier)
+		if (premier)
 			debutPartie();
-		
+
 	}
 
 	public void debutPartie() {
-		fini=false;
+		fini = false;
 		System.out.println("Début partie");
 		chronoTour.start();
 		gameThread.start();
+		tour = 0;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.setSc(partie);
@@ -127,6 +125,7 @@ public class Server implements Observer {
 	}
 
 	private void tour() {
+		tour++;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.tour + "/" + partie.send() + "/");
@@ -149,26 +148,26 @@ public class Server implements Observer {
 				cT.write(StaticRequete.bilan + "/" + bilanTour() + "/");
 			}
 		}
-		if(partie.isFini()){
-			fini=true;
+		if (partie.isFini()) {
+			fini = true;
 			finPartie();
 		}
 	}
 
-	private void finPartie(){
+	private void finPartie() {
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
-				cT.write(StaticRequete.vainqueur + "/"+bilanPartie()+"/");
+				cT.write(StaticRequete.vainqueur + "/" + bilanPartie() + "/");
 			}
 		}
 	}
-	
-	private String bilanPartie(){
-		//TODO bouchon
+
+	private String bilanPartie() {
+		// TODO bouchon
 		String bilan = "bah c'est fini";
 		return bilan;
 	}
-	
+
 	@Override
 	public void update(Observable o, Object arg) {
 		System.out.println("\t\tupdate!");
@@ -196,29 +195,27 @@ public class Server implements Observer {
 	}
 
 	private String score() {
-		//TODO bouchon
-		String scores = tour+"*";
+		// TODO bouchon
+		String scores = tour + "";
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
-				scores+="*"+cT.getNom()+"*"+cT.getScore();
+				scores += "*" + cT.getNom() + "*" + cT.getScore();
 			}
 		}
 		return scores;
 	}
 
 	private String bilanTour() {
-		//TODO bouchon
+		// TODO bouchon
 		String mot = "anticonstitutionnellement";
 		String vainqueur = "justin";
 		return mot + "/" + vainqueur + "/" + score() + "/";
 	}
 
-	
 	public void setGameThread(GameThread gameThread) {
 		this.gameThread.deleteObserver(this);
 		this.gameThread = gameThread;
 		this.gameThread.addObserver(this);
 	}
-	
-	
+
 }

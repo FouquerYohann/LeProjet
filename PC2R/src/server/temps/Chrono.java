@@ -1,4 +1,4 @@
-package server;
+package server.temps;
 
 public class Chrono {
 	private double time;
@@ -12,4 +12,5 @@ public class Chrono {
 		return (int)((System.currentTimeMillis()-time)/1000);
 	}
 
+	
 }
