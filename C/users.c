@@ -83,6 +83,7 @@ users* deleteUser(users* us,users* user){
 		if(tmp == user){
 			prec->next=tmp->next;
 			freeUser(tmp);
+			return us;
 		}
 		prec=tmp;
 		tmp=tmp->next;
