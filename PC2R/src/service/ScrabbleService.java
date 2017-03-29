@@ -111,6 +111,8 @@ public interface ScrabbleService {
 
     public String send();
 
-	boolean isFini();
+    public boolean isFini();
+    
+    public boolean isValidPlacement(String placement);
 
 }

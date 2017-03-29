@@ -67,4 +67,9 @@ public class ScrabbleDecorator implements ScrabbleService {
 	public boolean isFini() {
 		return sc.isFini();
 	}
+
+	@Override
+        public boolean isValidPlacement(String placement) {
+	    return sc.isValidPlacement(placement);
+        }
 }
