@@ -14,7 +14,7 @@ typedef struct partie
 	char* chrono;
 	char* score;
 	char* phase;
-
+	char* num_tour;
 }partie;
 
 

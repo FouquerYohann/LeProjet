@@ -7,7 +7,8 @@
 #include "client.h"
 #include "partie.h"
 
-
+#define KGRN  "\x1B[32m"
+#define KWHT  "\x1B[37m"
 
 
 int string_split(char** tabs,char* string_to_split,const char* delim ){
@@ -69,11 +70,20 @@ static void app(const char *address)
 	nb_args=string_split(toks,buffer,split);
 
 	if(strcmp(toks[0],"BIENVENUE")==0){
-		printf("on a recu Bienvenue %s \n placement %s \n tirage %s \n phase %s \n temps %s\n", p->user->name,toks[1],toks[2],toks[3],toks[4]);
+		printf("on a recu Bienvenue %s \n placement %s \n tirage %s \n scores %s \n phase %s \n temps %s\n", p->user->name,toks[1],toks[2],toks[3],toks[4],toks[5]);
 		sprintf(buffer,"%s/%s",toks[1],toks[2]);
 		parseScrabble(p->sc,buffer);
-		p->phase=strdup(toks[3]);
-		p->chrono=strdup(toks[4]);
+		writeInFic(FIC,p->sc);
+		p->phase=strdup(toks[4]);
+		p->chrono=strdup(toks[5]);
+		char* tmp=strdup(toks[3]);
+		nb_args=string_split(toks,tmp,"*");
+		p->num_tour=strdup(toks[0]);
+		int i;
+		for(i=1; i< nb_args;i=i+2){
+			p->other_users=addUser(p->other_users,initUser(toks[i],toks[i+1]));
+		}
+
 	}else {
 		printf("REFUUUUS\n");
 		return;
@@ -117,10 +127,24 @@ static void app(const char *address)
 				continue;
 			}
 
+			#if DEBUG
+			printf("\n %s\n",KGRN);
+			printf("\n SENDING buffer : %s\n", buffer);
+			printf("\n %s\n",KWHT);
+			#endif
+
 			write_server(sock,buffer);
 		}
 		else if(FD_ISSET(sock,&rdfs)){
+			
+
 			int n = read_server(sock, buffer);
+
+			#if DEBUG
+			printf("\n %s\n",KGRN);
+			printf("\n RECEIVING buffer : %s\n", buffer);
+			printf("\n %s\n",KWHT);
+			#endif
 
 			/* server down */
 			if(n == 0)
@@ -128,8 +152,6 @@ static void app(const char *address)
 				printf("Server disconnected !\n");
 				break;
 			}
-
-			printf("\n buffer : %s\n", buffer);
 
 			nb_args=string_split(toks,buffer,split);
 
@@ -153,7 +175,7 @@ static void app(const char *address)
 				writeInFic(FIC,p->sc);
 			}
 			else if(strcmp(toks[0],"VAINQUEUR")==0){
-				printf("la partie est fini. Le bilan %s",toks[1]);
+				printf("la partie est fini.\n Le bilan %s",toks[1]);
 			}
 			else if(strcmp(toks[0],"TOUR")==0){
 				printf("un nouveau tour. plateau %s tirage %s\n",toks[1],toks[2]);
@@ -180,6 +202,8 @@ static void app(const char *address)
 				printf("expiration du delai de recherche, fin de la phase de recherche\n");
 				free(p->chrono);
 				p->chrono=strdup("CHRONO A IMPLEMENTER");
+				free(p->phase);
+				p->phase=strdup("SOUMISSION");
 			}
 			else if(strcmp(toks[0],"SVALIDE")==0){
 				printf("soumission valide\n");
@@ -189,9 +213,18 @@ static void app(const char *address)
 			}
 			else if(strcmp(toks[0],"SFIN")==0){
 				printf("expiration du delai de soumission fin de la phase de soumission\n");
+				free(p->phase);
+				p->phase=strdup("RESULTAT");
 			}	
 			else if(strcmp(toks[0],"BILAN")==0){
-				printf("bilan du tour mot %s par %s scores pour tout les joueur %s\n",toks[1],toks[2],toks[3] );
+				printf("bilan du tour mot %s par %s \n",toks[1],toks[2]);
+				char* tmp=strdup(toks[3]);
+				nb_args=string_split(toks,tmp,"*");
+				int i;
+				printf("Scores :");
+				for(i=1; i< nb_args;i=i+2){
+					printf("\t %s : %s\n",toks[i],toks[i+1] );
+				}
 			}
 			else{
 				printf("Commande inconnue et ignore\n");

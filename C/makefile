@@ -2,8 +2,8 @@
 GCC=gcc
 GPP=g++
 
-#FLAGS=-Wall -g -fdiagnostics-color=auto -D DEBUG
-FLAGS=-Wall -g -fdiagnostics-color=auto
+FLAGS=-Wall -g -fdiagnostics-color=auto -D DEBUG
+#FLAGS=-Wall -g -fdiagnostics-color=auto
 GCCFLAGS=  -g -pthread
 CPPFLAGS= 
 LIBS= -lm
@@ -47,7 +47,7 @@ $(EXEC): $(INCS) $(OBJS)
 
 # Clean up
 clean:
-	rm -f *~ .*~ \#*\# *.o *.tmp* Chaine*.txt *.png *.plt Reseau*.txt
+	rm -f *.o *.tmp* 
 	rm -f $(EXEC) 
 
 # Dependencies

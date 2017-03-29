@@ -7,6 +7,7 @@ partie* initPartie(){
 	p->chrono=NULL;
 	p->score=NULL;
 	p->phase=NULL;
+	p->num_tour=NULL;
 
 	return p;
 }
