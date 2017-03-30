@@ -117,4 +117,7 @@ public interface ScrabbleService {
     public boolean isValidPlacement(String placement);
 
     public Raisons raisonValide(String placement,ScrabbleService scrabblePlayer);
+    
+    public void reTire();
+    
 }

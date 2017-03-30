@@ -368,5 +368,13 @@ public class ScrabbleImpl implements ScrabbleService {
     public boolean isValidPlacement(String placement) {
 	return raisonValide(placement, new ScrabbleImpl()) == Raisons.none;
     }
-
+    
+    public void reTire(){
+	int latailledutiragearefaire=tirage.size();
+	sacALettre.addAll(tirage);
+	tirage.clear();
+	tirerLettre(latailledutiragearefaire);
+    }
+    
+    
 }

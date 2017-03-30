@@ -78,6 +78,12 @@ public class ScrabbleDecorator implements ScrabbleService {
 	public Raisons raisonValide(String placement,ScrabbleService fgdfg) {
 		return sc.raisonValide(placement,fgdfg);
 	}
+
+	@Override
+        public void reTire() {
+	    sc.reTire();
+	    
+        }
 	
 	
 }
