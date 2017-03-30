@@ -1,6 +1,8 @@
 package server.temps;
 
-public class Chrono {
+import java.util.Observable;
+
+public class Chrono extends Observable{
 	private double time;
 	
 	
@@ -12,5 +14,6 @@ public class Chrono {
 		return (int)((System.currentTimeMillis()-time)/1000);
 	}
 
+	
 	
 }
