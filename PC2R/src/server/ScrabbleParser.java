@@ -21,10 +21,10 @@ public class ScrabbleParser {
 	}
 
 	public static Lettre[] parseTirage(String s) {
-		int deuxcentvingtcinq = 225;
+		
 		Lettre[] ret = new Lettre[7];
 		for (int i = 0; i < 7; i++) {
-			char let = s.charAt(deuxcentvingtcinq + i);
+			char let = s.charAt(i);
 			if (let == '0')
 				ret[i] = Lettre.VIDE;
 			else {

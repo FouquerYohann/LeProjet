@@ -109,17 +109,11 @@ char* parseOut(scrabble* sc){
 	int iter=0;
 	char* retS=(char*)malloc(sizeof(char)*234);
 	char** grille=sc->grille;
-	char*  tirage=sc->tirage;
 	for (j = 0; j < 15; ++j){
 		for (i = 0; i < 15; ++i){
 			retS[iter]=(grille[j][i]==VIDE)?'0':grille[j][i];
 			iter++;
 		}
-	}
-	retS[iter++]='/';
-	for (i = 0; i < 7; ++i){
-		retS[iter]=tirage[i];
-		iter++;
 	}
 	retS[iter]='\0';
 	return retS;
