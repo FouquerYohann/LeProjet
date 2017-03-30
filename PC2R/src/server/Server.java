@@ -228,6 +228,8 @@ public class Server implements Observer {
 				}
 			}
 		}
+		if(best==partie)
+			partie.reTire();
 		partie = best;
 		return mot + "/" + vainqueur + "/" + score();
 	}
