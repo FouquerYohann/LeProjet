@@ -12,6 +12,7 @@ import dictionnaire.Dico;
 import dictionnaire.IDico;
 import enums.Lettre;
 import enums.PowerUp;
+import enums.Raisons;
 
 public class ScrabbleContract extends ScrabbleDecorator {
 
@@ -31,11 +32,11 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	for (Lettre[] mot : cMot) {
 	    if (!(dick.isMotValide(mot))) {
 		throw new InvariantError("mot : " + Lettre.toString(mot)
-			+ " Non valide");
+		        + " Non valide");
 	    }
 	}
 	ArrayList<Lettre> lettreUtilise = new ArrayList<Lettre>(
-		getLettreRestant());
+	        getLettreRestant());
 	lettreUtilise.addAll(getLettreTire());
 
 	for (int i = 0; i < 15; i++) {
@@ -49,7 +50,7 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	Collections.sort(lettreUtilise);
 
 	if (!(Arrays.equals(lettreUtilise.toArray(), Lettre.initSacALettre()
-		.toArray()))) {
+	        .toArray()))) {
 	    throw new InvariantError("Il manque des lettre ");
 
 	}
@@ -106,7 +107,7 @@ public class ScrabbleContract extends ScrabbleDecorator {
     public void init() {
 	checkInvariant();
 	departPossible.add(new Point(7, 7));
-	
+
 	super.init();
 
 	for (int i = 0; i < 15; i++) {
@@ -127,19 +128,19 @@ public class ScrabbleContract extends ScrabbleDecorator {
 
     @Override
     public void init(Lettre[][] mots, Lettre[] tirage) {
-	
-	if(!(tirage.length ==7))
-	    throw new  PreConditionError("le tirage doit etre de taille 7");
-	if(!(mots.length==15))
+
+	if (!(tirage.length == 7))
+	    throw new PreConditionError("le tirage doit etre de taille 7");
+	if (!(mots.length == 15))
 	    throw new PreConditionError("le plateau ne fait pas 15 par 15");
 	for (int i = 0; i < mots.length; i++) {
-	    if(!(mots[i].length==15))
-		    throw new PreConditionError("le plateau ne fait pas 15 par 15");
-		
+	    if (!(mots[i].length == 15))
+		throw new PreConditionError("le plateau ne fait pas 15 par 15");
+
 	}
 	checkInvariant();
-	
-	super.init(mots,tirage);
+
+	super.init(mots, tirage);
 	checkInvariant();
 	for (int i = 0; i < 15; i++) {
 	    for (int j = 0; j < 15; j++) {
@@ -149,8 +150,9 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	    }
 	}
 	for (int i = 0; i < tirage.length; i++) {
-	    if(!(tirage[i] == getLettreTire().toArray(new Lettre[tirage.length])[i]))
-	    	throw new PostConditionError("LE tirage n'est pas le meme");
+	    if (!(tirage[i] == getLettreTire().toArray(
+		    new Lettre[tirage.length])[i]))
+		throw new PostConditionError("LE tirage n'est pas le meme");
 	}
     }
 
@@ -206,8 +208,7 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	if (!horizontal)
 	    if (!(y + mot.length < 15))
 		throw new PreConditionError("le mot depasse du plateau");
-	
-	
+
 	boolean ok = false;
 	int k = x;
 	int l = y;
@@ -215,10 +216,10 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	    if (isStart(k, l)) {
 		ok = true;
 	    }
-	    
+
 	    if (getLettre(k, l) != Lettre.VIDE && getLettre(k, l) != mot[i]) {
 		throw new PreConditionError("La lettre  " + mot[i]
-			+ " ne peut pas etre placer");
+		        + " ne peut pas etre placer");
 	    }
 	    if (getLettre(k, l) == Lettre.VIDE) {
 		if (!getLettreTire().contains(mot[i]))
@@ -230,8 +231,8 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	    else
 		l++;
 	}
-	if(!ok)
-		throw new PreConditionError("Mauvais Depart !! ");
+	if (!ok)
+	    throw new PreConditionError("Mauvais Depart !! ");
 
 	int prePoint = getPoints();
 	super.placerMot(mot, x, y, horizontal);
@@ -291,4 +292,40 @@ public class ScrabbleContract extends ScrabbleDecorator {
 	return false;
     }
 
+    public boolean isValidPlacement(String placement) {
+
+	checkInvariant();
+
+	if (!(placement.length() == 225))
+	    throw new PreConditionError(
+		    "le placement ne fait pas 225 character");
+
+	boolean retour = super.isValidPlacement(placement);
+
+	checkInvariant();
+
+	return retour;
+
+    }
+
+    public Raisons raisonValide(String placement, ScrabbleService scra) {
+	checkInvariant();
+
+	if (!(placement.length() == 225))
+	    throw new PreConditionError(
+		    "le placement ne fait pas 225 character");
+
+	Raisons retour = super.raisonValide(placement, scra);
+
+	checkInvariant();
+
+	return retour;
+
+    }
+
+    public void reTire() {
+	checkInvariant();
+	super.reTire();
+	checkInvariant();
+    }
 }

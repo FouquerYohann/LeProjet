@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import enums.ClientState;
+import enums.PartieState;
+import enums.Raisons;
 import server.staticvalue.StaticRequete;
 import service.ScrabbleService;
 
@@ -20,6 +22,8 @@ public class ClientThread extends Thread {
 	private BufferedReader	inBR		= null;
 	private BufferedWriter	outBW		= null;
 	private int				score		= 0;
+	private ScrabbleService	scJoue		= null;
+	private int				scoreTour	= 0;
 
 	public ClientThread(Socket sock, Server server) {
 		super();
@@ -40,10 +44,10 @@ public class ClientThread extends Thread {
 	public void run() {
 		try {
 			handle(sock);
-		} catch (IOException e) {
-			System.err.println("IN RUN");
+		} catch (Throwable e) {
+//			e.printStackTrace();
+//			System.err.println(e.getMessage());
 			disconnect();
-			e.printStackTrace();
 		}
 	}
 
@@ -59,46 +63,90 @@ public class ClientThread extends Thread {
 				continue;
 			}
 			String requete = tok[0];
-			//CONNEXION
+			// CONNEXION
 			if (requete.equals(StaticRequete.connexion) && tok.length == 2) {
 				try {
 					setNom(tok[1]);
 				} catch (Exception e) {
-					System.out.println(StaticRequete.refus);
-					write(StaticRequete.refus + "/");
-					disconnect();
-					return;
+					refus();
 				}
 				clientState = ClientState.playing;
 				write(server.retourConnection() + score + "/"
 						+ server.getPartieState().getValue() + "/"
-						+ server.getChronoTour() + "/");
+						+ server.getTempsTour() + "/");
 				server.connecte(tok[1]);
 
 			} else if (requete.equals(StaticRequete.sort) && tok.length == 2) {
 				if (tok[1].equals(nom)) {
-					disconnect();
-					return;
+					throw new Error("disconnect");
 				}
-			}else{
-				//DEFAULT
-				write(StaticRequete.error+"/");
-				
+			} else if (requete.equals(StaticRequete.trouve) && tok.length == 2) {
+				trouve(tok[1]);
+
+			} else {
+				// DEFAULT
+				error();
+
 			}
 
 		}
 
 	}
 
-	public void write(String str){
-		try{
+	public void refus() {
+		System.out.println(StaticRequete.refus);
+		write(StaticRequete.refus + "/");
+		throw new Error("refus");
+	}
+
+	private void trouve(String grille) {
+		ScrabbleService capture = new ScrabbleImpl();
+		Raisons raisonsRefus;
+		if (sc.raisonValide(grille, capture) == Raisons.none) {
+
+			int scortemp = capture.getPoints() - sc.getPoints();
+			if (scortemp > scoreTour) {
+				scoreTour = scortemp;
+				scJoue = capture;
+
+				if (server.getPartieState() == PartieState.recherche) {
+					interruptRecherche();
+					write(StaticRequete.rvalide + "/");
+				} else if (server.getPartieState() == PartieState.soumission) {
+					write(StaticRequete.svalide + "/");
+				}
+				return;
+			} else {
+				raisonsRefus = Raisons.inf;
+			}
+		} else {
+			raisonsRefus = sc.raisonValide(grille, new ScrabbleImpl());
+		}
+
+		if (server.getPartieState() == PartieState.recherche) {
+			write(StaticRequete.rinvalide + "/" + raisonsRefus.getValue() + "/");
+		} else if (server.getPartieState() == PartieState.soumission) {
+			write(StaticRequete.sinvalide + "/" + raisonsRefus.getValue() + "/");
+		}
+
+	}
+
+	public void error() {
+		System.out.println("requete inconnu");
+		write(StaticRequete.error + "/");
+	}
+
+	public void write(String str) {
+		System.out.println("\t" + this.getNom() + "[" + this.getName() + "] "
+				+ str);
+		try {
 			outBW.write(str);
 			outBW.flush();
-		}catch(IOException e){
+		} catch (IOException e) {
 			System.err.println("Error write");
 		}
 	}
-	
+
 	public void setNom(String nom) throws Exception {
 		if (server.alreadyExist(nom))
 			throw new Exception();
@@ -108,6 +156,13 @@ public class ClientThread extends Thread {
 		}
 	}
 
+	public void interruptRecherche(){
+		System.out.println("fin recherche");
+		synchronized (server) {
+			server.notify();
+		}
+	}
+	
 	public String getNom() {
 		return nom;
 	}
@@ -136,6 +191,10 @@ public class ClientThread extends Thread {
 		return score;
 	}
 
+	public int getScoreTour() {
+		return scoreTour;
+	}
+
 	public void disconnect() {
 		try {
 			server.disconnect(this);
@@ -147,7 +206,23 @@ public class ClientThread extends Thread {
 			}
 			if (sock != null)
 				sock.close();
-		} catch (IOException e) {System.err.println("disconnect Thread");}
+		} catch (IOException e) {
+			System.err.println("disconnect Thread");
+		}
 
+	}
+
+	public ScrabbleService getScJoue() {
+		return scJoue;
+	}
+
+	public void ResetScoreTour() {
+		sc = server.getPartie();
+		scoreTour = 0;
+		scJoue = null;
+	}
+
+	public void updateScore() {
+		score += scoreTour;
 	}
 }

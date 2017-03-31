@@ -2,8 +2,8 @@
 GCC=gcc
 GPP=g++
 
-#FLAGS=-Wall -g -fdiagnostics-color=auto -D DEBUG
-FLAGS=-Wall -g -fdiagnostics-color=auto
+FLAGS=-Wall -g -fdiagnostics-color=auto -D DEBUG
+#FLAGS=-Wall -g -fdiagnostics-color=auto
 GCCFLAGS=  -g -pthread
 CPPFLAGS= 
 LIBS= -lm
@@ -14,13 +14,16 @@ LIBS= -lm
 EXEC = main.x
 
 #.h
-INCS = parser.h \
+INCS = scrabble.h \
 		client.h \
+		users.h \
+		partie.h
 
 #.c
 SOURCES = client.c \
-	 	parser.c \
-
+	 	scrabble.c \
+	 	users.c \
+	 	partie.c
 
 OBJS = $(SOURCES:.c=.o)
 
@@ -44,7 +47,7 @@ $(EXEC): $(INCS) $(OBJS)
 
 # Clean up
 clean:
-	rm -f *~ .*~ \#*\# *.o *.tmp* Chaine*.txt *.png *.plt Reseau*.txt
+	rm -f *.o *.tmp* 
 	rm -f $(EXEC) 
 
 # Dependencies
