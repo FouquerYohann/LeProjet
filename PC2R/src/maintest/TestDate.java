@@ -1,7 +1,6 @@
 package maintest;
 
 import java.io.File;
-import java.util.Date;
 
 import server.save.Profil;
 import server.save.SaveProfil;

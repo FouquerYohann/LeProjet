@@ -79,7 +79,7 @@ public class SaveProfil implements Collection<Profil> {
 		if(contain(name))
 			get(name).deconnexion(score);
 		else
-			System.err.println("joueur inconnu");
+			System.err.println("joueur inconnu : " +name);
 	}
 	
 	@Override

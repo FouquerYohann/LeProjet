@@ -20,8 +20,8 @@ public class Dico implements IDico {
 	private static final String path = "dico/dic1.txt";
 
 	public static String sansAccent(String s) {
-		final String accents = "ÀÁÂÃÄÅÈÉÊËÎÏÍÌÓÒÔÖÕØŠÚÙÛÜÝŸŽ"; // A compléter...
-		final String letters = "AAAAAAEEEEIIIIOOOOOOSUUUUYYZ"; // A compléter...
+		final String accents = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ØŠï¿½ï¿½ï¿½ï¿½ÝŸï¿½"; // A complï¿½ter...
+		final String letters = "AAAAAAEEEEIIIIOOOOOOSUUUUYYZ"; // A complï¿½ter...
 
 		StringBuffer buffer = null;
 		for (int i = s.length() - 1; i >= 0; i--) {
@@ -56,8 +56,7 @@ public class Dico implements IDico {
 				}
 			}
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return getDico();
 		}
 		return patTre;
 	}

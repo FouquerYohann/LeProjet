@@ -17,18 +17,20 @@ import server.temps.ChronometreLayout;
 import service.ScrabbleService;
 
 public class Server implements Observer {
-	private final String			saveFic		= "save";
-	private final static int		portDefault	= 2018;
+	private final String			saveFic			= "save";
+	private final static int		portDefault		= 2018;
 	private ServerSocket			Ssock;
-	private ArrayList<ClientThread>	listClient	= new ArrayList<ClientThread>();
-	private ScrabbleService			partie		= new ScrabbleImpl();
-	private Chrono					chronoTour	= new Chrono();
-	private GameThread				gameThread	= new GameThread(this);
-	private boolean					fini		= true;
-	private int						tour		= 0;
+	private ArrayList<ClientThread>	listClient		= new ArrayList<ClientThread>();
+	private ScrabbleService			partie			= new ScrabbleImpl();
+	private Chrono					chronoTour		= new Chrono();
+	private GameThread				gameThread		= new GameThread(this);
+	private boolean					fini			= true;
+	private int						tour			= 0;
 	private ChronometreLayout		cml;
-	private SaveProfil				save		= new SaveProfil(new File(
-														saveFic));
+	private int						bilanTourInt	= 0;
+	private String					bilanTour		= "";
+	private SaveProfil				save			= new SaveProfil(new File(
+															saveFic));
 
 	public Server(int port) throws IOException {
 		gameThread.addObserver(this);
@@ -43,7 +45,7 @@ public class Server implements Observer {
 	}
 
 	public void disconnect(ClientThread clientThread) {
-		save.deconnecte(clientThread.getName(), clientThread.getScore());
+		save.deconnecte(clientThread.getNom(), clientThread.getScore());
 		save.saveCSV(new File(saveFic));
 		System.out.println("disconnect " + clientThread.getNom());
 		boolean dernier = true;
@@ -164,7 +166,6 @@ public class Server implements Observer {
 
 	private void finPartie() {
 		fini = true;
-		System.out.println("fini serveur");
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.vainqueur + "/" + bilanPartie() + "/");
@@ -223,8 +224,10 @@ public class Server implements Observer {
 	}
 
 	private String bilanTour() {
+		if(bilanTourInt==tour)return bilanTour;
+		
 		String mot = "anticonstitutionnellement";
-		String vainqueur = "justin";
+		String vainqueur = "personne";
 		int bestScore = 0;
 		ScrabbleService best = partie;
 		for (ClientThread cT : listClient) {
@@ -241,7 +244,9 @@ public class Server implements Observer {
 		if (best == partie)
 			partie.reTire();
 		partie = best;
-		return mot + "/" + vainqueur + "/" + score();
+		bilanTour=mot + "/" + vainqueur + "/" + score();
+		bilanTourInt++;
+		return bilanTour;
 	}
 
 	public void setGameThread(GameThread gameThread) {
