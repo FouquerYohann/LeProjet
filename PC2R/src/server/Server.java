@@ -1,5 +1,6 @@
 package server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,12 +10,14 @@ import java.util.Observer;
 
 import enums.ClientState;
 import enums.PartieState;
+import server.save.SaveProfil;
 import server.staticvalue.StaticRequete;
 import server.temps.Chrono;
 import server.temps.ChronometreLayout;
 import service.ScrabbleService;
 
 public class Server implements Observer {
+	private final String			saveFic		= "save";
 	private final static int		portDefault	= 2018;
 	private ServerSocket			Ssock;
 	private ArrayList<ClientThread>	listClient	= new ArrayList<ClientThread>();
@@ -24,6 +27,8 @@ public class Server implements Observer {
 	private boolean					fini		= true;
 	private int						tour		= 0;
 	private ChronometreLayout		cml;
+	private SaveProfil				save		= new SaveProfil(new File(
+														saveFic));
 
 	public Server(int port) throws IOException {
 		gameThread.addObserver(this);
@@ -38,8 +43,10 @@ public class Server implements Observer {
 	}
 
 	public void disconnect(ClientThread clientThread) {
+		save.deconnecte(clientThread.getName(), clientThread.getScore());
+		save.saveCSV(new File(saveFic));
 		System.out.println("disconnect " + clientThread.getNom());
-		boolean dernier=true;
+		boolean dernier = true;
 		getListClient().remove(clientThread);
 		if (clientThread.getClientState() == ClientState.playing)
 			for (ClientThread ct : listClient) {
@@ -47,10 +54,11 @@ public class Server implements Observer {
 					String ret = StaticRequete.deconnexion + "/"
 							+ clientThread.getNom() + "/";
 					ct.write(ret);
-					dernier=false;
+					dernier = false;
 				}
 			}
-		if(dernier){
+		if (dernier) {
+			System.out.println("dernier");
 			finPartie();
 		}
 	}
@@ -84,6 +92,8 @@ public class Server implements Observer {
 
 	public void connecte(String string) {
 		boolean premier = true;
+		save.connecte(string);
+		save.saveCSV(new File(saveFic));
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				if (cT.getNom().equals(string)) {
@@ -105,10 +115,8 @@ public class Server implements Observer {
 
 	public void debutPartie() {
 		fini = false;
-		System.out.println("Début partie");
-		chronoTour.start();
-		cml=new ChronometreLayout(chronoTour);
 		gameThread.start();
+		System.out.println("Début partie");
 		tour = 0;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
@@ -119,6 +127,9 @@ public class Server implements Observer {
 
 	private void tour() {
 		tour++;
+		chronoTour.start();
+		cml = new ChronometreLayout(chronoTour);
+
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.tour + "/" + partie.send() + "/");
@@ -138,6 +149,7 @@ public class Server implements Observer {
 
 	private void resultat() {
 		cml.close();
+		chronoTour.stop();
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.sfin + "/");
@@ -151,11 +163,23 @@ public class Server implements Observer {
 	}
 
 	private void finPartie() {
+		fini = true;
+		System.out.println("fini serveur");
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.vainqueur + "/" + bilanPartie() + "/");
 			}
 		}
+		chronoTour.stop();
+		cml.close();
+		gameThread.deleteObserver(this);
+		gameThread.stop();
+		gameThread = new GameThread(this);
+		gameThread.addObserver(this);
+		partie = new ScrabbleImpl();
+		partie.init();
+		partie.tirerLettre(7);
+
 	}
 
 	private String bilanPartie() {
@@ -249,6 +273,5 @@ public class Server implements Observer {
 			e.printStackTrace();
 		}
 	}
-
 
 }

@@ -8,8 +8,9 @@ import enums.PartieState;
 public class GameThread extends Observable implements Runnable {
 	private Server				server;
 	private PartieState			partieState	= PartieState.debut;
-	public static final long	troisMin	= 100000;				// 180000;
-	public static final long	cinqMin		= 120000;				// 300000;
+	public static final long	troisMin	= 180000;
+	public static final long	cinqMin		= 300000;
+	private Thread				t;
 
 	public GameThread(Server server) {
 		this.server = server;
@@ -61,15 +62,19 @@ public class GameThread extends Observable implements Runnable {
 				debutRecherche();
 				debutSoumission();
 				debutResultat();
-				System.out.println("TOUR");
+				System.out.println(server.isFini());
 			}
 		} catch (InterruptedException | IOException e) {
-			e.printStackTrace();
+			System.out.println("fin partie");
 		}
 	}
 
 	public void start() {
-		new Thread(this).start();
+		t = new Thread(this);
+		t.start();
 	}
 
+	public void stop(){
+		this.t.interrupt();
+	}
 }

@@ -225,4 +225,5 @@ public class ClientThread extends Thread {
 	public void updateScore() {
 		score += scoreTour;
 	}
+	
 }

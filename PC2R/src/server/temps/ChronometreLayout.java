@@ -60,12 +60,16 @@ public class ChronometreLayout extends JPanel implements Observer{
 		
 		
 		c.start();
-		Thread.sleep(10000);
+		Thread.sleep(1000);
 		ChronometreLayout cl=new ChronometreLayout(c);
-		Thread.sleep(25000);
-		c.stop();
+		Thread.sleep(2500);
+//		c.stop();
 		
 		Thread.sleep(2000);
 		cl.close();
+		c.start();
+		Thread.sleep(1200);
+		cl=new ChronometreLayout(c);
+		
 	}
 }
