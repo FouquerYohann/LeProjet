@@ -45,8 +45,8 @@ public class ClientThread extends Thread {
 		try {
 			handle(sock);
 		} catch (Throwable e) {
-			e.printStackTrace();
-			System.err.println(e.getMessage());
+//			e.printStackTrace();
+//			System.err.println(e.getMessage());
 			disconnect();
 		}
 	}
@@ -110,6 +110,7 @@ public class ClientThread extends Thread {
 				scJoue = capture;
 
 				if (server.getPartieState() == PartieState.recherche) {
+					interruptRecherche();
 					write(StaticRequete.rvalide + "/");
 				} else if (server.getPartieState() == PartieState.soumission) {
 					write(StaticRequete.svalide + "/");
@@ -155,6 +156,13 @@ public class ClientThread extends Thread {
 		}
 	}
 
+	public void interruptRecherche(){
+		System.out.println("fin recherche");
+		synchronized (server) {
+			server.notify();
+		}
+	}
+	
 	public String getNom() {
 		return nom;
 	}

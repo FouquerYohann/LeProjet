@@ -49,9 +49,9 @@ public class GameThread extends Observable implements Runnable {
 		partieState = PartieState.resultat;
 		setChanged();
 		notifyObservers();
-		// synchronized (server) {
-		// server.wait();
-		// }
+		synchronized (server) {
+			server.wait(1000);
+		}
 	}
 
 	@Override

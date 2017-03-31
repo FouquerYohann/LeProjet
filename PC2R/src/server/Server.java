@@ -6,12 +6,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.TimeUnit;
 
 import enums.ClientState;
 import enums.PartieState;
 import server.staticvalue.StaticRequete;
 import server.temps.Chrono;
+import server.temps.ChronometreLayout;
 import service.ScrabbleService;
 
 public class Server implements Observer {
@@ -23,6 +23,7 @@ public class Server implements Observer {
 	private GameThread				gameThread	= new GameThread(this);
 	private boolean					fini		= true;
 	private int						tour		= 0;
+	private ChronometreLayout		cml;
 
 	public Server(int port) throws IOException {
 		gameThread.addObserver(this);
@@ -36,28 +37,9 @@ public class Server implements Observer {
 		return listClient;
 	}
 
-	public static void main(String[] args) {
-		Server server = null;
-		try {
-			if (args.length == 0)
-				server = new Server(portDefault);
-			else
-				server = new Server(Integer.parseInt(args[0]));
-
-			while (true) {
-				Socket sock = server.Ssock.accept();
-				ClientThread t = new ClientThread(sock, server);
-				server.getListClient().add(t);
-				t.start();
-			}
-
-		} catch (NumberFormatException | IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void disconnect(ClientThread clientThread) {
 		System.out.println("disconnect " + clientThread.getNom());
+		boolean dernier=true;
 		getListClient().remove(clientThread);
 		if (clientThread.getClientState() == ClientState.playing)
 			for (ClientThread ct : listClient) {
@@ -65,8 +47,12 @@ public class Server implements Observer {
 					String ret = StaticRequete.deconnexion + "/"
 							+ clientThread.getNom() + "/";
 					ct.write(ret);
+					dernier=false;
 				}
 			}
+		if(dernier){
+			finPartie();
+		}
 	}
 
 	public String retourConnection() {
@@ -110,11 +96,8 @@ public class Server implements Observer {
 		}
 		if (premier) {
 			try {
-				TimeUnit.SECONDS.sleep(1);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {}
 			debutPartie();
 
 		}
@@ -124,6 +107,7 @@ public class Server implements Observer {
 		fini = false;
 		System.out.println("Début partie");
 		chronoTour.start();
+		cml=new ChronometreLayout(chronoTour);
 		gameThread.start();
 		tour = 0;
 		for (ClientThread cT : listClient) {
@@ -144,6 +128,7 @@ public class Server implements Observer {
 	}
 
 	private void soumission() {
+		chronoTour.start();
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.rfin + "/");
@@ -152,6 +137,7 @@ public class Server implements Observer {
 	}
 
 	private void resultat() {
+		cml.close();
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.sfin + "/");
@@ -228,7 +214,7 @@ public class Server implements Observer {
 				}
 			}
 		}
-		if(best==partie)
+		if (best == partie)
 			partie.reTire();
 		partie = best;
 		return mot + "/" + vainqueur + "/" + score();
@@ -243,5 +229,26 @@ public class Server implements Observer {
 	public ScrabbleService getPartie() {
 		return partie;
 	}
+
+	public static void main(String[] args) {
+		Server server = null;
+		try {
+			if (args.length == 0)
+				server = new Server(portDefault);
+			else
+				server = new Server(Integer.parseInt(args[0]));
+
+			while (true) {
+				Socket sock = server.Ssock.accept();
+				ClientThread t = new ClientThread(sock, server);
+				server.getListClient().add(t);
+				t.start();
+			}
+
+		} catch (NumberFormatException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 }
