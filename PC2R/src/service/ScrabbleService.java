@@ -120,4 +120,8 @@ public interface ScrabbleService {
     
     public void reTire();
     
+    public String plusLong(ScrabbleService old);
+    	  
+    
+    public boolean isEmpty();
 }

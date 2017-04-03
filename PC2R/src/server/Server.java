@@ -30,7 +30,7 @@ public class Server implements Observer {
 	private int						bilanTourInt	= 0;
 	private String					bilanTour		= "";
 	private SaveProfil				save			= new SaveProfil(new File(
-															saveFic));
+	        saveFic));
 
 	public Server(int port) throws IOException {
 		gameThread.addObserver(this);
@@ -51,13 +51,13 @@ public class Server implements Observer {
 		boolean dernier = true;
 		getListClient().remove(clientThread);
 		if (clientThread.getClientState() == ClientState.playing)
-			for (ClientThread ct : listClient) {
-				if (ct.getClientState() == ClientState.playing) {
-					String ret = StaticRequete.deconnexion + "/"
-							+ clientThread.getNom() + "/";
-					ct.write(ret);
-					dernier = false;
-				}
+		    for (ClientThread ct : listClient) {
+			if (ct.getClientState() == ClientState.playing) {
+			String ret = StaticRequete.deconnexion + "/"
+			        + clientThread.getNom() + "/";
+			ct.write(ret);
+			dernier = false;
+			}
 			}
 		if (dernier) {
 			System.out.println("dernier");
@@ -72,10 +72,10 @@ public class Server implements Observer {
 
 	public boolean alreadyExist(String nom) {
 		if (nom == null)
-			return true;
+		    return true;
 		for (ClientThread clientThread : listClient) {
 			if (nom.equals(clientThread.getNom()))
-				return true;
+			    return true;
 		}
 		return false;
 	}
@@ -192,19 +192,19 @@ public class Server implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		switch (gameThread.getPartieState()) {
-		case debut:
-			throw new Error("euh pas normal");
-		case recherche:
-			tour();
-			break;
-		case soumission:
-			soumission();
-			break;
-		case resultat:
-			resultat();
-			break;
-		default:
-			throw new Error("euh pas normal");
+			case debut:
+				throw new Error("euh pas normal");
+			case recherche:
+				tour();
+				break;
+			case soumission:
+				soumission();
+				break;
+			case resultat:
+				resultat();
+				break;
+			default:
+				throw new Error("euh pas normal");
 		}
 
 	}
@@ -224,8 +224,8 @@ public class Server implements Observer {
 	}
 
 	private String bilanTour() {
-		if(bilanTourInt==tour)return bilanTour;
-		
+		if (bilanTourInt == tour) return bilanTour;
+
 		String mot = "anticonstitutionnellement";
 		String vainqueur = "personne";
 		int bestScore = 0;
@@ -238,13 +238,15 @@ public class Server implements Observer {
 					bestScore = scoreIt;
 					best = cT.getScJoue();
 					vainqueur = cT.getNom();
+					if (cT != null)
+					    mot = cT.getScJoue().plusLong(partie);
 				}
 			}
 		}
 		if (best == partie)
-			partie.reTire();
+		    partie.reTire();
 		partie = best;
-		bilanTour=mot + "/" + vainqueur + "/" + score();
+		bilanTour = mot + "/" + vainqueur + "/" + score();
 		bilanTourInt++;
 		return bilanTour;
 	}
@@ -263,7 +265,7 @@ public class Server implements Observer {
 		Server server = null;
 		try {
 			if (args.length == 0)
-				server = new Server(portDefault);
+			    server = new Server(portDefault);
 			else
 				server = new Server(Integer.parseInt(args[0]));
 

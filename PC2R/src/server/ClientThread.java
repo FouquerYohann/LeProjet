@@ -140,7 +140,7 @@ public class ClientThread extends Thread {
 		System.out.println("\t" + this.getNom() + "[" + this.getName() + "] "
 				+ str);
 		try {
-			outBW.write(str);
+			outBW.write(str+"\n");
 			outBW.flush();
 		} catch (IOException e) {
 			System.err.println("Error write");

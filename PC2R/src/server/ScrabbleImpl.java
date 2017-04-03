@@ -14,7 +14,7 @@ import service.ScrabbleService;
 public class ScrabbleImpl implements ScrabbleService {
 	private Lettre[][]			plateau;
 	private PowerUp[][]			bonus;
-	private static final int	size	= 15;
+	public static final int	size	= 15;
 
 	private Collection<Lettre>	sacALettre;
 	private Collection<Lettre>	tirage;
@@ -28,7 +28,7 @@ public class ScrabbleImpl implements ScrabbleService {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (plateau[i][j] != Lettre.VIDE)
-					return false;
+				    return false;
 			}
 		}
 		return true;
@@ -43,7 +43,7 @@ public class ScrabbleImpl implements ScrabbleService {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (plateau[i][j] == Lettre.VIDE)
-					ret += "_" + " ";
+				    ret += "_" + " ";
 				else
 					ret += plateau[i][j] + " ";
 			}
@@ -59,24 +59,24 @@ public class ScrabbleImpl implements ScrabbleService {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				switch (bonus[i][j]) {
-				case Lx2:
-					ret += "L2 ";
-					break;
-				case Lx3:
-					ret += "L3 ";
-					break;
-				case Mx2:
-					ret += "M2 ";
-					break;
-				case Mx3:
-					ret += "M3 ";
-					break;
-				case Normal:
-					ret += "__ ";
-					break;
+					case Lx2:
+						ret += "L2 ";
+						break;
+					case Lx3:
+						ret += "L3 ";
+						break;
+					case Mx2:
+						ret += "M2 ";
+						break;
+					case Mx3:
+						ret += "M3 ";
+						break;
+					case Normal:
+						ret += "__ ";
+						break;
 
-				default:
-					break;
+					default:
+						break;
 				}
 			}
 			ret += "\n";
@@ -94,9 +94,9 @@ public class ScrabbleImpl implements ScrabbleService {
 			for (int j = 0; j < size; j++) {
 				if (plateau[i][j] == Lettre.VIDE) {
 					if (currH.isEmpty())
-						continue;
+					    continue;
 					if (currH.size() > 1)
-						ret.add(currH);
+					    ret.add(currH);
 					currH = new ArrayList<Lettre>();
 				} else {
 
@@ -113,7 +113,7 @@ public class ScrabbleImpl implements ScrabbleService {
 			for (int j = 0; j < size; j++) {
 				if (plateau[j][i] == Lettre.VIDE) {
 					if (currH.isEmpty())
-						continue;
+					    continue;
 					if (currH.size() > 1) {
 						ret.add(currH);
 					}
@@ -261,7 +261,7 @@ public class ScrabbleImpl implements ScrabbleService {
 
 			}
 			if (horizontal)
-				k++;
+			    k++;
 			else
 				l++;
 		}
@@ -293,7 +293,7 @@ public class ScrabbleImpl implements ScrabbleService {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (plateau[i][j] != Lettre.VIDE)
-					ret += plateau[i][j];
+				    ret += plateau[i][j];
 				else {
 					ret += "0";
 				}
@@ -322,39 +322,32 @@ public class ScrabbleImpl implements ScrabbleService {
 				char let = placement.charAt(curr++);
 				int pos = 26;
 				if (let != '0')
-					pos = let - 'A';
+				    pos = let - 'A';
 				if (Lettre.values()[pos] != plateau[i][j]) {
 					more.add(Lettre.values()[pos]);
 				}
 			}
 		}
 
-		if (more.size() > 7) {
-
-			return Raisons.tricheur;
-		}
+		if (more.size() > 7) { return Raisons.tricheur; }
 		ArrayList<Lettre> copieLettreTire = new ArrayList<Lettre>(
-				getLettreTire());
+		        getLettreTire());
 		for (Lettre lettre : more) {
-			if (!copieLettreTire.remove(lettre)) {
-				return Raisons.tricheur;
-			}
+			if (!copieLettreTire.remove(lettre)) { return Raisons.tricheur; }
 		}
 		ScrabbleImpl tmp = new ScrabbleImpl();
 		tmp.init(ScrabbleParser.parseGrille(placement),
-				copieLettreTire.toArray(new Lettre[copieLettreTire.size()]));
+		        copieLettreTire.toArray(new Lettre[copieLettreTire.size()]));
 
 		IDico dick = new Dico();
 		for (Lettre[] lettre : tmp.getListeMot()) {
-			if (!dick.isMotValide(lettre)) {
-				return Raisons.dic;
-			}
+			if (!dick.isMotValide(lettre)) { return Raisons.dic; }
 		}
 		if (this.getPoints() > tmp.getPoints())
-			return Raisons.inf;
+		    return Raisons.inf;
 
 		scrabblePlayer.init(tmp.plateau,
-				tmp.tirage.toArray(new Lettre[tirage.size()]));;
+		        tmp.tirage.toArray(new Lettre[tirage.size()]));;
 		return Raisons.none;
 
 	}
@@ -368,6 +361,47 @@ public class ScrabbleImpl implements ScrabbleService {
 		sacALettre.addAll(tirage);
 		tirage.clear();
 		tirerLettre(latailledutiragearefaire);
+	}
+
+	@Override
+	public String plusLong(ScrabbleService old) {
+		Collection<Lettre[]> motsThis = this.getListeMot();
+		Collection<Lettre[]> motsOld = old.getListeMot();
+
+		ArrayList<String> newMots = new ArrayList<String>();
+		ArrayList<String> oldMots = new ArrayList<String>();
+
+		for (Lettre[] let : motsThis) {
+			String buf = "";
+			for (int i = 0; i < let.length; i++) {
+				buf += let[i];
+			}
+			newMots.add(buf);
+		}
+
+		for (Lettre[] let : motsOld) {
+			String buf = "";
+			for (int i = 0; i < let.length; i++) {
+				buf += let[i];
+			}
+			oldMots.add(buf);
+		}
+
+		for (String string : oldMots) {
+			newMots.remove(string);
+		}
+
+		int max = 0;
+		String ret = "";
+
+		for (String string : newMots) {
+			int len = string.length();
+			if (len > max) {
+				ret = string;
+				max = len;
+			}
+		}
+		return ret;
 	}
 
 }

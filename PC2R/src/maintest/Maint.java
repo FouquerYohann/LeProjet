@@ -41,7 +41,7 @@ public class Maint {
 	
 	System.out.println("placement "+sc2.isValidPlacement("000000000000000000000000000000000000000000000000000000000000000000000EH000000000000J0UVAL000000000E0I0Z000000000CUIT0I00000000000000M00000000000000U000000000SIEENT00000000000000000000000000000000000000000000000000000000000000"));
 	
-	/*
+	
 	System.out.println(sc2);
 	String sauvegarde = null;
 	Scanner scan = new Scanner(System.in);
@@ -82,7 +82,7 @@ public class Maint {
 	System.out.println(sauvegarde);
 	System.out.println(sc.send());
 	scan.close();
-	*/
+	
     }
 
 }

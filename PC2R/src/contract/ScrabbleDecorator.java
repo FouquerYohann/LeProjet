@@ -8,7 +8,7 @@ import enums.Raisons;
 import service.ScrabbleService;
 
 public class ScrabbleDecorator implements ScrabbleService {
-	private ScrabbleService	sc;
+	private ScrabbleService sc;
 
 	public ScrabbleDecorator(ScrabbleService sc) {
 		super();
@@ -75,15 +75,23 @@ public class ScrabbleDecorator implements ScrabbleService {
 	}
 
 	@Override
-	public Raisons raisonValide(String placement,ScrabbleService fgdfg) {
-		return sc.raisonValide(placement,fgdfg);
+	public Raisons raisonValide(String placement, ScrabbleService fgdfg) {
+		return sc.raisonValide(placement, fgdfg);
 	}
 
 	@Override
-        public void reTire() {
-	    sc.reTire();
-	    
-        }
-	
-	
+	public void reTire() {
+		sc.reTire();
+
+	}
+
+	@Override
+	public String plusLong(ScrabbleService old) {
+		return sc.plusLong(old);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return sc.isEmpty();
+	}
 }
