@@ -40,8 +40,7 @@ public class ClientIA implements Runnable {
 		this("127.0.0.1", nom);
 	}
 
-	@Override
-	public void run() {
+	@Override public void run() {
 		try {
 			Socket connect = new Socket(ip, port);
 			outBW = new BufferedWriter(new OutputStreamWriter(connect.getOutputStream()));
@@ -66,6 +65,16 @@ public class ClientIA implements Runnable {
 
 	private void connexion(String user) throws IOException {
 		write(StaticRequete.connexion + "/" + user + "/");
+		new Thread(){
+			@Override public void run() {
+				while(true){
+					try {
+						Messages.sendMessage(user, outBW);
+					} catch (IOException e) {
+					}
+				}
+			}
+		}.start();
 	}
 
 	public void write(String str) throws IOException {
@@ -81,20 +90,22 @@ public class ClientIA implements Runnable {
 	}
 
 	private void bienvenu(String tok[]) {
-		if (tok.length != 6) return;
-		if (!tok[0].equals(StaticRequete.bienvenue)) return;
+		if (tok.length != 6)
+			return;
+		if (!tok[0].equals(StaticRequete.bienvenue))
+			return;
 
 		sc = new ScrabbleImpl();
 		sc.init(ScrabbleParser.parseGrille(tok[1]), ScrabbleParser.parseTirage(tok[2]));
 
 		if (tok[4].equals(StaticState.debut))
-		    state = PartieState.debut;
+			state = PartieState.debut;
 		else if (tok[4].equals(StaticState.soumission))
-		    state = PartieState.soumission;
+			state = PartieState.soumission;
 		else if (tok[4].equals(StaticState.resultat))
-		    state = PartieState.resultat;
+			state = PartieState.resultat;
 		else if (tok[4].equals(StaticState.recherche))
-		    state = PartieState.recherche;
+			state = PartieState.recherche;
 
 	}
 
@@ -108,6 +119,8 @@ public class ClientIA implements Runnable {
 			String tok[] = rl.split("/");
 			for (int i = 0; i < tok.length; i++) {
 				if (StaticRequete.tour.equals(tok[i])) {
+					sc = new ScrabbleImpl();
+					sc.init(ScrabbleParser.parseGrille(tok[i + 1]), ScrabbleParser.parseTirage(tok[i + 2]));
 					state = PartieState.recherche;
 				} else if (StaticRequete.rfin.equals(tok[i])) {
 					state = PartieState.soumission;
@@ -126,24 +139,26 @@ public class ClientIA implements Runnable {
 
 			switch (state) {
 				case debut:
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {}
+					// try {
+					// Thread.sleep(1000);
+					// } catch (InterruptedException e) {
+					// }
 					break;
 				case recherche:
 					trouve();
 					break;
 				case soumission:
 					if (!trouve)
-					    trouve();
+						trouve();
 					break;
 				case resultat:
 					break;
 
 			}
-			try {
-				Thread.sleep(1000 * r.nextInt(20));
-			} catch (InterruptedException e) {}
+			// try {
+			// Thread.sleep(1000 * r.nextInt(20));
+			// } catch (InterruptedException e) {
+			// }
 		}
 	}
 
@@ -161,25 +176,30 @@ public class ClientIA implements Runnable {
 		ArrayList<String> ana;
 		String tirage = strs[1];
 
+		ArrayList<String> lMot = new ArrayList<String>();
+		for (Lettre[] lettre : sc.getListeMot()) {
+			lMot.add(Lettre.toString(lettre));
+		}
+
 		if (sc.isEmpty()) {
 			ana = nana.getAnagramme(tirage);
 			for (String string : ana) {
+				System.out.println(string);
 				Lettre[] mot = Lettre.stringToArray(string);
 				try {
 					newSc.placerMot(mot, 7, 7, true);
-					System.out
-					        .println("\tplacerMot(" + string + " ," + 7 + " ," + 7
-					                + " ,true);");
-					if (sc.isValidPlacement(newSc.send())) { return newSc; }
+					if (sc.isValidPlacement(newSc.send())) {
+						// System.out.println("\tplacerMot(" + string + " ," + 7
+						// + " ," + 7 + " ,true);");
+						return newSc;
+					}
 				} catch (Error e) {
-					System.out
-					        .println("placerMot(" + string + " ," + 7 + " ," + 7
-					                + " ,true);");
+					// System.out.println("placerMot(" + string + " ," + 7 + "
+					// ," + 7 + " ,true);");
 				}
 				String tok[] = sc.send().split("/");
 				newSc = new ScrabbleImpl();
-				newSc.init(ScrabbleParser.parseGrille(tok[0]),
-				        ScrabbleParser.parseTirage(tok[1]));
+				newSc.init(ScrabbleParser.parseGrille(tok[0]), ScrabbleParser.parseTirage(tok[1]));
 
 			}
 		} else {
@@ -193,21 +213,24 @@ public class ClientIA implements Runnable {
 					for (String str : ana) {
 						for (int k = 0; k < ScrabbleImpl.size; k++) {
 							Lettre[] mot = Lettre.stringToArray(str);
+
+							if (lMot.contains(str))
+								continue;
+
 							try {
 								newSc.placerMot(mot, j, k, true);
-								System.out
-								        .println("\tplacerMot(" + str + " ," + j + " ," + k
-								                + " ,true);");
-								if (sc.isValidPlacement(newSc.send())) { return newSc; }
+								if (sc.isValidPlacement(newSc.send())) {
+									// System.out.println("\tplacerMot(" + str +
+									// " ," + j + " ," + k + " ,true);");
+									return newSc;
+								}
 							} catch (Error e) {
-								System.out
-								        .println("placerMot(" + str + " ," + j + " ," + k
-								                + " ,true);");
+								// System.out.println("placerMot(" + str + " ,"
+								// + j + " ," + k + " ,true);");
 							}
 							String tok[] = sc.send().split("/");
 							newSc = new ScrabbleImpl();
-							newSc.init(ScrabbleParser.parseGrille(tok[0]),
-							        ScrabbleParser.parseTirage(tok[1]));
+							newSc.init(ScrabbleParser.parseGrille(tok[0]), ScrabbleParser.parseTirage(tok[1]));
 						}
 
 					}
@@ -225,21 +248,20 @@ public class ClientIA implements Runnable {
 					for (String str : ana) {
 						for (int k = 0; k < ScrabbleImpl.size; k++) {
 							Lettre[] mot = Lettre.stringToArray(str);
+							if (lMot.contains(str))
+								continue;
 							try {
 								newSc.placerMot(mot, k, j, false);
-								System.out
-								        .println("\tplacerMot(" + str + " ," + j + " ," + k
-								                + " ,false);");
-								if (sc.isValidPlacement(newSc.send())) { return newSc; }
+								System.out.println("\tplacerMot(" + str + " ," + j + " ," + k + " ,false);");
+								if (sc.isValidPlacement(newSc.send())) {
+									return newSc;
+								}
 							} catch (Error e) {
-								System.out
-								        .println("placerMot(" + str + " ," + j + " ," + k
-								                + " ,false);");
+								System.out.println("placerMot(" + str + " ," + j + " ," + k + " ,false);");
 							}
 							String tok[] = sc.send().split("/");
 							newSc = new ScrabbleImpl();
-							newSc.init(ScrabbleParser.parseGrille(tok[0]),
-							        ScrabbleParser.parseTirage(tok[1]));
+							newSc.init(ScrabbleParser.parseGrille(tok[0]), ScrabbleParser.parseTirage(tok[1]));
 						}
 
 					}

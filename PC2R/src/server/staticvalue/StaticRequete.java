@@ -20,4 +20,5 @@ public class StaticRequete {
 	public static final String	bilan		= "BILAN";
 	public static final String	sinvalide	= "SINVALIDE";
 	public static final String	svalide		= "SVALIDE";
+	public static final String	message		= "MESSAGE";
 }

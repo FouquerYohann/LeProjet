@@ -1,6 +1,7 @@
 package bot;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Anagramme {
 
@@ -21,16 +22,16 @@ public class Anagramme {
 
 		word = new char[long_anagram];
 		solution = new char[long_anagram]; // Là ou seront stockées les
-		                                   // différentes solutions
+											// différentes solutions
 		for (int m = 0; m < long_anagram; m++) {
 			word[m] = TEMP[m];
 		}
 
 		Arbre(word, 0, long_anagram, solution, taille_solution); // On rentre
-		                                                         // dans le
-		                                                         // premier
-		                                                         // étage de
-		                                                         // l'arbre
+																	// dans le
+																	// premier
+																	// étage de
+																	// l'arbre
 
 		if (word != null) {
 			word = null;
@@ -39,11 +40,19 @@ public class Anagramme {
 			solution = null;
 		}
 		System.gc();
+		res.sort(new Comparator<String>() {
+
+			@Override public int compare(String o1, String o2) {
+				if(o1.length()>o2.length())return -1;
+				if(o1.length()<o2.length())return 1;
+				return 0;
+			}
+		});
 		return res;
 	}
 
 	void Arbre(char[] word, int n, int lg, char[] solution, int taille_solution) // Fonction
-	                                                                             // recursive
+																					// recursive
 	{
 		char[] comb;
 		int i, j, k, m;
@@ -53,46 +62,46 @@ public class Anagramme {
 			comb = new char[lg];
 
 			taille_solution++; // On est descendu d'un étage dans l'arbre =>
-			                   // taille de la solution +1
+								// taille de la solution +1
 			for (i = 0; i < lg; i++) // Pour chaque lettre du nouveau mot on
-			                         // réalise autant d'arbre pour l'étage
-			                         // suivant
+										// réalise autant d'arbre pour l'étage
+										// suivant
 			{
 				solution[n] = word[i]; // On ajoute la nouvelle lettre à la fin
-				                       // de la solution (n = étage)
+										// de la solution (n = étage)
 
 				tmp = new StringBuffer();
 				for (m = 0; m < taille_solution; m++) {
 					tmp.append(solution[m]);
 				}
-
-				res.add(tmp.toString());
+				if (tmp.length() > 1)
+					res.add(tmp.toString());
 				// System.out.println(tmp); /// ########## Les différentes
 				/// combinaisons sortent ici !! BINGO
 				/// ###########//
 
 				k = 0; // ICI on définit la nouvelle combinaison COMB avec les
-				       // lettres restantes
+						// lettres restantes
 				for (j = 0; j < lg; j++) {
 					if (j != i) {
 						comb[k] = word[j]; // Donc comb prend toutes les lettres
-						                   // restantes
+											// restantes
 						k++;
 					}
 				}
 
 				Arbre(comb, n + 1, lg - 1, solution, taille_solution); // Puis
-				                                                       // on
-				                                                       // descend
-				                                                       // d'un
-				                                                       // étage
-				                                                       // dans
-				                                                       // l'arbre
-				                                                       // en
-				                                                       // reinjectant
-				                                                       // le
-				                                                       // nouveau
-				                                                       // comb
+																		// on
+																		// descend
+																		// d'un
+																		// étage
+																		// dans
+																		// l'arbre
+																		// en
+																		// reinjectant
+																		// le
+																		// nouveau
+																		// comb
 			}
 		} else
 			taille_solution--; // On remonte d'un étage dans l'arbre

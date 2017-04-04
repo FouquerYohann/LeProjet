@@ -29,8 +29,7 @@ public class Server implements Observer {
 	private ChronometreLayout		cml;
 	private int						bilanTourInt	= 0;
 	private String					bilanTour		= "";
-	private SaveProfil				save			= new SaveProfil(new File(
-	        saveFic));
+	private SaveProfil				save			= new SaveProfil(new File(saveFic));
 
 	public Server(int port) throws IOException {
 		gameThread.addObserver(this);
@@ -51,13 +50,12 @@ public class Server implements Observer {
 		boolean dernier = true;
 		getListClient().remove(clientThread);
 		if (clientThread.getClientState() == ClientState.playing)
-		    for (ClientThread ct : listClient) {
-			if (ct.getClientState() == ClientState.playing) {
-			String ret = StaticRequete.deconnexion + "/"
-			        + clientThread.getNom() + "/";
-			ct.write(ret);
-			dernier = false;
-			}
+			for (ClientThread ct : listClient) {
+				if (ct.getClientState() == ClientState.playing) {
+					String ret = StaticRequete.deconnexion + "/" + clientThread.getNom() + "/";
+					ct.write(ret);
+					dernier = false;
+				}
 			}
 		if (dernier) {
 			System.out.println("dernier");
@@ -72,10 +70,10 @@ public class Server implements Observer {
 
 	public boolean alreadyExist(String nom) {
 		if (nom == null)
-		    return true;
+			return true;
 		for (ClientThread clientThread : listClient) {
 			if (nom.equals(clientThread.getNom()))
-			    return true;
+				return true;
 		}
 		return false;
 	}
@@ -109,7 +107,8 @@ public class Server implements Observer {
 		if (premier) {
 			try {
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+			}
 			debutPartie();
 
 		}
@@ -189,8 +188,7 @@ public class Server implements Observer {
 		return bilan;
 	}
 
-	@Override
-	public void update(Observable o, Object arg) {
+	@Override public void update(Observable o, Object arg) {
 		switch (gameThread.getPartieState()) {
 			case debut:
 				throw new Error("euh pas normal");
@@ -224,7 +222,8 @@ public class Server implements Observer {
 	}
 
 	private String bilanTour() {
-		if (bilanTourInt == tour) return bilanTour;
+		if (bilanTourInt == tour)
+			return bilanTour;
 
 		String mot = "anticonstitutionnellement";
 		String vainqueur = "personne";
@@ -239,12 +238,12 @@ public class Server implements Observer {
 					best = cT.getScJoue();
 					vainqueur = cT.getNom();
 					if (cT != null)
-					    mot = cT.getScJoue().plusLong(partie);
+						mot = cT.getScJoue().plusLong(partie);
 				}
 			}
 		}
 		if (best == partie)
-		    partie.reTire();
+			partie.reTire();
 		partie = best;
 		bilanTour = mot + "/" + vainqueur + "/" + score();
 		bilanTourInt++;
@@ -265,7 +264,7 @@ public class Server implements Observer {
 		Server server = null;
 		try {
 			if (args.length == 0)
-			    server = new Server(portDefault);
+				server = new Server(portDefault);
 			else
 				server = new Server(Integer.parseInt(args[0]));
 
