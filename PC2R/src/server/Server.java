@@ -7,7 +7,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.TimeUnit;
 
+import contract.ScrabbleContract;
 import enums.ClientState;
 import enums.PartieState;
 import server.save.SaveProfil;
@@ -21,7 +23,7 @@ public class Server implements Observer {
 	private final static int		portDefault		= 2018;
 	private ServerSocket			Ssock;
 	private ArrayList<ClientThread>	listClient		= new ArrayList<ClientThread>();
-	private ScrabbleService			partie			= new ScrabbleImpl();
+	private ScrabbleService			partie			= new ScrabbleContract(new ScrabbleImpl());
 	private Chrono					chronoTour		= new Chrono();
 	private GameThread				gameThread		= new GameThread(this);
 	private boolean					fini			= true;

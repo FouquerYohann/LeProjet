@@ -1,9 +1,10 @@
-/server/
+/bot/
 /contract/
 /dictionnaire/
 /enums/
 /maintest/
-/service/
 /patricia/
 /patricias/
-/bot/
+/server/
+/service/
+/THybrid/

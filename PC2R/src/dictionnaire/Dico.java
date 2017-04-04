@@ -10,12 +10,12 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.Scanner;
 
+import THybrid.ITHybrid;
+import THybrid.THybrid;
 import enums.Lettre;
-import patricia.interfaces.INode;
-import patricias.Node;
 
 public class Dico implements IDico {
-	private static final INode patTree = getDicoOnline();
+	private static final ITHybrid thyb = getDicoOnlineTHybrid();
 	private static final String address = "http://www.pallier.org/ressources/dicofr/liste.de.mots.francais.frgut.txt";
 	private static final String path = "dico/dic1.txt";
 
@@ -36,9 +36,9 @@ public class Dico implements IDico {
 		return buffer == null ? s : buffer.toString();
 	}
 
-	private static INode getDicoOnline() {
+	private static THybrid getDicoOnlineTHybrid() {
 		URL url;
-		INode patTre = new Node();
+		THybrid thyb=new THybrid();
 		try {
 			url = new URL(address);
 			
@@ -52,23 +52,24 @@ public class Dico implements IDico {
 				if (line.length() < 16) {
 					line = line.toUpperCase();
 					line=sansAccent(line);
-					patTre.insertion(line);
+					thyb.insertion(line);
 				}
 			}
 		} catch (Throwable e) {
-			return getDico();
+			return getDicoTHybrid();
 		}
-		return patTre;
+		return thyb;
 	}
-
-	private static INode getDico() {
-		INode patTre = new Node();
+	
+	
+	private static THybrid getDicoTHybrid() {
+		THybrid thyb=new THybrid();
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader("dico/dic.txt"));
 			String line;
 			while ((line = br.readLine()) != null)
-				patTre.insertion(line);
+				thyb.insertion(line);
 		} catch (Exception e) {
 			e.printStackTrace();
 
@@ -79,12 +80,12 @@ public class Dico implements IDico {
 				e.printStackTrace();
 			}
 		}
-		return patTre;
+		return thyb;
 	}
 
 	public boolean isMotValide(Lettre[] mot) {
 
-		return patTree.contient(Lettre.toString(mot));
+		return thyb.contient(Lettre.toString(mot));
 	}
 
 }
