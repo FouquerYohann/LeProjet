@@ -18,7 +18,7 @@ typedef struct in_addr IN_ADDR;
 
 
 #define CRLF	 "\r\n"
-#define PORT	 2018
+#define PORT	 2017
 
 #define BUF_SIZE 1024
 

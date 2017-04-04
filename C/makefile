@@ -20,12 +20,14 @@ INCS = scrabble.h \
 		client.h \
 		users.h \
 		partie.h \
+		ui.h
 	
 #.c
 SOURCES = client.c \
 	 	scrabble.c \
 	 	users.c \
 	 	partie.c \
+	 	ui.c
 	 
 
 OBJS = $(SOURCES:.c=.o)

@@ -112,7 +112,7 @@ static void* app(void* data)
 	GtkLabel* phase_label           = (GtkLabel*)    gtk_builder_get_object(builder,"phase_label");
 	GtkLabel* score_label           = (GtkLabel*)    gtk_builder_get_object(builder,"score_label");
 	GtkLabel* chrono_label          = (GtkLabel*)    gtk_builder_get_object(builder,"chrono_label");
-	GtkLabel* best_player_label     = (GtkLabel* )   gtk_builder_get_object(builder,"best_player_label");
+	GtkLabel* best_player_label     = (GtkLabel*)    gtk_builder_get_object(builder,"best_player_label");
 	GtkTextView* scrabble_text_view = (GtkTextView*) gtk_builder_get_object(builder,"scrabble_text_view");
 	GtkTextBuffer* scrabble_buffer  =                gtk_text_view_get_buffer(scrabble_text_view);
 	GtkTextView* chat_text_view     = (GtkTextView*) gtk_builder_get_object(builder,"chat_text_view");
@@ -170,8 +170,6 @@ static void* app(void* data)
 				p->sc=initScrabble();
 				
 				gtk_label_set_text(phase_label,"phase : Recherche");
-			
-
 			}
 			else if(strcmp(toks[0],"VAINQUEUR")==0){
 				printf("la partie est fini.\n Le bilan %s",toks[1]);
@@ -208,8 +206,6 @@ static void* app(void* data)
 			}
 			else if(strcmp(toks[0],"SINVALIDE")==0){
 				printf("soumission invalide pour la raison %s\n",toks[1] );
-				
-
 			}
 			else if(strcmp(toks[0],"SFIN")==0){
 				printf("expiration du delai de soumission fin de la phase de soumission\n");
@@ -234,8 +230,6 @@ static void* app(void* data)
 				gtk_label_set_text(best_player_label,"Soumettez un mot");
 			}else if (strcmp(toks[0],"RETMESSAGE")==0){
 				printf("Recu un nouveau message de %s : %s \n", toks[1],toks[2]);
-				
-
 				set_chat_text(chat_text_buffer,toks[1],toks[2]);
 
 			} else if(strcmp(toks[0],"MEILLEUR")==0){
