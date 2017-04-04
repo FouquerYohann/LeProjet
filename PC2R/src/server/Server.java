@@ -154,6 +154,12 @@ public class Server implements Observer {
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.sfin + "/");
+				try {
+					TimeUnit.MILLISECONDS.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				cT.write(StaticRequete.bilan + "/" + bilanTour() + "/");
 			}
 		}
@@ -221,6 +227,14 @@ public class Server implements Observer {
 		return scores;
 	}
 
+public void retourMessage(String name,String message) {
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				cT.write(StaticRequete.retMessage + "/"+name+"/"+message);
+			}
+		}
+	}
+
 	private String bilanTour() {
 		if (bilanTourInt == tour)
 			return bilanTour;
@@ -260,6 +274,30 @@ public class Server implements Observer {
 		return partie;
 	}
 
+public void best_player() {
+		
+		String best=null;
+		int best_score=-1;
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				int tmp=cT.getScoreTour();
+				if(tmp>best_score){
+					best_score=tmp;
+					best=cT.getNom();
+				}
+			}
+		}
+		
+		
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
+				int i=(cT.getNom().equals(best))?1:0;
+				cT.write(StaticRequete.meilleur + "/"+i+"/");
+			}
+		}
+		
+	}
+
 	public static void main(String[] args) {
 		Server server = null;
 		try {
@@ -279,5 +317,8 @@ public class Server implements Observer {
 			e.printStackTrace();
 		}
 	}
+
+
+
 
 }

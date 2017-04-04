@@ -51,7 +51,7 @@ public class ClientThread extends Thread {
 		}
 	}
 
-	public void handle(Socket sock) throws IOException {
+	public void handle(Socket sock) throws IOException,InterruptedException {
 
 		while (true) {
 			String received = inBR.readLine();
@@ -82,8 +82,13 @@ public class ClientThread extends Thread {
 				}
 			} else if (requete.equals(StaticRequete.trouve) && tok.length == 2) {
 				trouve(tok[1]);
+				TimeUnit.MILLISECONDS.sleep(500);
+				server.best_player();
 
-			} else {
+			}  else if (requete.equals(StaticRequete.message) && tok.length == 2) {
+				server.retourMessage(nom,tok[1]);
+
+			}else {
 				// DEFAULT
 				error();
 
