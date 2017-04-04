@@ -1,5 +1,7 @@
 #include "scrabble.h"
+#include <pthread.h>
 
+pthread_mutex_t scrabble_view_mutex=PTHREAD_MUTEX_INITIALIZER;
 
 scrabble* initScrabble(){
 	int i ;
@@ -141,7 +143,7 @@ char* forGtkView(char* grille,char *tirage){
 	char* retour=(char*)malloc(1024*sizeof(char));
 
 	
-	sprintf(retour,"<span face=\"Courier\">\n");
+	sprintf(retour,"<tt>");
 	int iter=strlen(retour);
 	for (int i = 0; i < 15; ++i)
 	{
@@ -159,10 +161,10 @@ char* forGtkView(char* grille,char *tirage){
 		retour[iter++]=tirage[i];
 	}
 	retour[strlen(retour)]='\0';
-	sprintf(retour,"%s</span>\n",retour);
+	sprintf(retour,"%s</tt>",retour);
 	retour[strlen(retour)]='\0';
 
-
+	printf("retour : \n%s\n", retour);
 	return  retour;
 }
 
@@ -171,17 +173,23 @@ void set_new_buffer_withmarkup(GtkTextBuffer* scrabble_buffer,char* grille,char*
 	char* tex=forGtkView(grille,tirage);
 	GtkTextIter start,end;
 
+	pthread_mutex_lock(&scrabble_view_mutex);
 	gtk_text_buffer_set_text(scrabble_buffer,"",0);
+
 	gtk_text_buffer_get_bounds (scrabble_buffer,&start,&end);
+	printf("TEXXXXXX : \n%s\n", tex);
 	gtk_text_buffer_insert_markup(scrabble_buffer,&end,tex,strlen(tex));
+
+	pthread_mutex_unlock(&scrabble_view_mutex);
+
 	
 }
 
 void set_chat_text(GtkTextBuffer* chat_buffer,char* name,char* message){
 	char buf[1024];
-	sprintf(buf,"%s : %s\n",name,message);
+	sprintf(buf,"%s : %s",name,message);
 	GtkTextIter start,end;
-	if(gtk_text_buffer_get_line_count(chat_buffer) >10){
+	if(gtk_text_buffer_get_line_count(chat_buffer) >15){
 		gtk_text_buffer_get_bounds (chat_buffer,&start,&end);
 		GtkTextIter tmp=start;
 		gtk_text_iter_forward_line(&tmp);

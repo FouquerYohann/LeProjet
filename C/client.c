@@ -193,10 +193,6 @@ static void* app(void* data)
 			}
 			else if(strcmp(toks[0],"RINVALIDE")==0){
 				printf("placement invalide pour la raison %s\n",toks[1]);
-				
-				set_new_buffer_withmarkup(scrabble_buffer,parseOut(p->sc),p->sc->tirage);
-
-
 			}
 			else if(strcmp(toks[0],"RATROUVE")==0){
 				printf("le joueur %s a trouve un mot fin de la phase de recherche\n", toks[1]);
@@ -213,7 +209,6 @@ static void* app(void* data)
 			else if(strcmp(toks[0],"SINVALIDE")==0){
 				printf("soumission invalide pour la raison %s\n",toks[1] );
 				
-				set_new_buffer_withmarkup(scrabble_buffer,parseOut(p->sc),p->sc->tirage);
 
 			}
 			else if(strcmp(toks[0],"SFIN")==0){
