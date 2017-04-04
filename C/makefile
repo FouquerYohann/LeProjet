@@ -6,8 +6,10 @@ FLAGS=-Wall -g -fdiagnostics-color=auto -D DEBUG
 #FLAGS=-Wall -g -fdiagnostics-color=auto
 GCCFLAGS=  -g -pthread
 CPPFLAGS= 
-LIBS= -lm
-
+LIBS= -lpthread
+GTKPACKAGE = `pkg-config --cflags gtk+-3.0`
+GTKLIBS = `pkg-config --libs gtk+-3.0`
+GTKFLAGS = -rdynamic
 # User definitions must be here
 
 #executable
@@ -17,13 +19,14 @@ EXEC = main.x
 INCS = scrabble.h \
 		client.h \
 		users.h \
-		partie.h
-
+		partie.h \
+	
 #.c
 SOURCES = client.c \
 	 	scrabble.c \
 	 	users.c \
-	 	partie.c
+	 	partie.c \
+	 
 
 OBJS = $(SOURCES:.c=.o)
 
@@ -32,17 +35,17 @@ OBJS = $(SOURCES:.c=.o)
 all: $(EXEC) 
 
 $(EXEC): $(INCS) $(OBJS) 
-	$(GCC) $(GCCFLAGS) $(OBJS) $(LIBS) -o $(EXEC) 
+	$(GCC) $(GCCFLAGS) $(OBJS) $(LIBS) -o $(EXEC) $(GTKLIBS) $(GTKFLAGS)
 
 
 .SUFFIXES:
 .SUFFIXES: .c .cc .o
 
 .cc.o:
-	$(GPP) $(FLAGS) -c $<
+	$(GPP) $(FLAGS) -c $< $(GTKPACKAGE)
 
 .c.o:
-	$(GCC) $(FLAGS) -c $<
+	$(GCC) $(FLAGS) -c $< $(GTKPACKAGE)
 
 
 # Clean up

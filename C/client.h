@@ -22,7 +22,7 @@ typedef struct in_addr IN_ADDR;
 
 #define BUF_SIZE 1024
 
-static void app(const char *address);
+static void* app();
 static int init_connection(const char *address);
 static void end_connection(int sock);
 static int read_server(SOCKET sock, char *buffer);

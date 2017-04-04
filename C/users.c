@@ -53,6 +53,7 @@ users* getUserByName(users* us, char* name){
 	while(curr->next){
 		if(strcmp(curr->name,name)==0)
 			return curr;
+		curr=curr->next;
 	}
 	return NULL;
 }
