@@ -65,9 +65,13 @@ void set_new_buffer_withmarkup(GtkTextBuffer* scrabble_buffer,char* grille,char*
 	
 }
 
-void set_chat_text(GtkTextBuffer* chat_buffer,char* name,char* message){
+void set_chat_text(GtkTextBuffer* chat_buffer,char* name,char* message, int prive){
 	char buf[1024];
-	sprintf(buf,"%s : %s",name,message);
+	if(prive)
+		sprintf(buf,"private -- %s : %s\n",name,message);
+	else
+		sprintf(buf,"%s : %s\n",name,message);
+
 	GtkTextIter start,end;
 	if(gtk_text_buffer_get_line_count(chat_buffer) >15){
 		gtk_text_buffer_get_bounds (chat_buffer,&start,&end);

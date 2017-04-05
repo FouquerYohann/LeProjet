@@ -17,6 +17,6 @@ char* forSendfromGtk(gchar* text);
 
 void set_new_buffer_withmarkup(GtkTextBuffer* scrabble_text_view,char* grille,char* tirage);
 
-void set_chat_text(GtkTextBuffer* chat_buffer,char* name,char* message);
+void set_chat_text(GtkTextBuffer* chat_buffer,char* name,char* message,int prive);
 
 #endif

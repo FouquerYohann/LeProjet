@@ -62,10 +62,18 @@ G_MODULE_EXPORT void on_click_trouve(GtkWidget *widget, gpointer data)
 G_MODULE_EXPORT void on_click_send(GtkWidget *widget, gpointer data)
 {
 
-	GtkEntry* chat=(GtkEntry*)data;
+	GtkEntry* chat=(GtkEntry*)widget;
 	const gchar* text=gtk_entry_get_text(chat);
+	if(text[0]=='@'){
+		char* tmp=strdup(text+1);
+		char* name=strsep(&tmp," ");
+		printf("On est dans le @ : %s %s\n",name,tmp);
+		sprintf(buffer,"PENVOI/%s/%s\n",name,tmp);
+	}else{
 
-	sprintf(buffer,"MESSAGE/%s\n",text);
+		sprintf(buffer,"ENVOI/%s\n",text);
+	
+	}
 	gtk_entry_set_text(chat,"");
 	write_server(sock,buffer);
 }
@@ -75,8 +83,16 @@ G_MODULE_EXPORT void on_enter(GtkWidget *widget, gpointer data)
 
 	GtkEntry* chat=(GtkEntry*)widget;
 	const gchar* text=gtk_entry_get_text(chat);
+	if(text[0]=='@'){
+		char* tmp=strdup(text+1);
+		char* name=strsep(&tmp," ");
+		printf("On est dans le @ : %s %s\n",name,tmp);
+		sprintf(buffer,"PENVOI/%s/%s\n",name,tmp);
+	}else{
 
-	sprintf(buffer,"MESSAGE/%s\n",text);
+		sprintf(buffer,"ENVOI/%s\n",text);
+	
+	}
 	gtk_entry_set_text(chat,"");
 	write_server(sock,buffer);
 }
@@ -228,9 +244,13 @@ static void* app(void* data)
 					}
 				}
 				gtk_label_set_text(best_player_label,"Soumettez un mot");
-			}else if (strcmp(toks[0],"RETMESSAGE")==0){
-				printf("Recu un nouveau message de %s : %s \n", toks[1],toks[2]);
-				set_chat_text(chat_text_buffer,toks[1],toks[2]);
+			}else if (strcmp(toks[0],"RECEPTION")==0){
+				printf("Recu un nouveau message de %s : %s \n", toks[2],toks[1]);
+				set_chat_text(chat_text_buffer,toks[2],toks[1],0);
+
+			} else if (strcmp(toks[0],"PRECEPTION")==0){
+				printf("Recu un nouveau message privé de %s : %s \n", toks[2],toks[1]);
+				set_chat_text(chat_text_buffer,toks[2],toks[1],1);
 
 			} else if(strcmp(toks[0],"MEILLEUR")==0){
 
