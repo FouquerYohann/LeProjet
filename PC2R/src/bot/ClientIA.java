@@ -29,7 +29,7 @@ public class ClientIA implements Runnable {
 	private String				nom;
 	private boolean				trouve	= false;
 	private Random				r		= new Random(System.currentTimeMillis());
-	private Anagramme			nana	= new Anagramme();
+	private ChercheurMot		cher	= new ChercheurMot(this);
 
 	public ClientIA(String ip, String nom) {
 		this.ip = ip;
@@ -65,9 +65,9 @@ public class ClientIA implements Runnable {
 
 	private void connexion(String user) throws IOException {
 		write(StaticRequete.connexion + "/" + user + "/");
-		new Thread(){
+		new Thread() {
 			@Override public void run() {
-				while(true){
+				while (true) {
 					try {
 						Messages.sendMessage(user, outBW);
 					} catch (IOException e) {
@@ -122,6 +122,7 @@ public class ClientIA implements Runnable {
 					sc = new ScrabbleImpl();
 					sc.init(ScrabbleParser.parseGrille(tok[i + 1]), ScrabbleParser.parseTirage(tok[i + 2]));
 					state = PartieState.recherche;
+					cher.setSc(sc);
 				} else if (StaticRequete.rfin.equals(tok[i])) {
 					state = PartieState.soumission;
 				} else if (StaticRequete.sfin.equals(tok[i])) {
@@ -163,134 +164,24 @@ public class ClientIA implements Runnable {
 	}
 
 	private void trouve() throws IOException {
-		String placement = trouverMot().send();
-		placement = placement.substring(0, placement.length() - 8);
+		String placement = cher.getMot();
 
-		write(StaticRequete.trouve + "/" + placement + "/");
-	}
+		if (placement == null) {
+			synchronized (cher) {
 
-	private ScrabbleService trouverMot() {
-		String strs[] = sc.send().split("/");
-		ScrabbleService newSc = new ScrabbleImpl();
-		newSc.init(ScrabbleParser.parseGrille(strs[0]), ScrabbleParser.parseTirage(strs[1]));
-		ArrayList<String> ana;
-		String tirage = strs[1];
-
-		ArrayList<String> lMot = new ArrayList<String>();
-		for (Lettre[] lettre : sc.getListeMot()) {
-			lMot.add(Lettre.toString(lettre));
-		}
-
-		if (sc.isEmpty()) {
-			ana = nana.getAnagramme(tirage);
-			for (String string : ana) {
-				System.out.println(string);
-				Lettre[] mot = Lettre.stringToArray(string);
 				try {
-					newSc.placerMot(mot, 7, 7, true);
-					if (sc.isValidPlacement(newSc.send())) {
-						// System.out.println("\tplacerMot(" + string + " ," + 7
-						// + " ," + 7 + " ,true);");
-						return newSc;
-					}
-				} catch (Error e) {
-					// System.out.println("placerMot(" + string + " ," + 7 + "
-					// ," + 7 + " ,true);");
+					System.out.println("waiting");
+					cher.wait();
+					System.out.println("nouvelle solution");
+				} catch (InterruptedException e) {
 				}
-				String tok[] = sc.send().split("/");
-				newSc = new ScrabbleImpl();
-				newSc.init(ScrabbleParser.parseGrille(tok[0]), ScrabbleParser.parseTirage(tok[1]));
-
+				placement = cher.getMot();
 			}
-		} else {
+		} else if (placement.isEmpty())
+			return;
+		System.out.println(placement);
 
-			for (int i = 0; i < ScrabbleImpl.size; i++) {
-				char[] lettres = getLettreLigne(i);
-				for (int j = 0; j < lettres.length; j++) {
-					char l = lettres[j];
-					tirage += l;
-					ana = nana.getAnagramme(tirage);
-					for (String str : ana) {
-						for (int k = 0; k < ScrabbleImpl.size; k++) {
-							Lettre[] mot = Lettre.stringToArray(str);
-
-							if (lMot.contains(str))
-								continue;
-
-							try {
-								newSc.placerMot(mot, j, k, true);
-								if (sc.isValidPlacement(newSc.send())) {
-									// System.out.println("\tplacerMot(" + str +
-									// " ," + j + " ," + k + " ,true);");
-									return newSc;
-								}
-							} catch (Error e) {
-								// System.out.println("placerMot(" + str + " ,"
-								// + j + " ," + k + " ,true);");
-							}
-							String tok[] = sc.send().split("/");
-							newSc = new ScrabbleImpl();
-							newSc.init(ScrabbleParser.parseGrille(tok[0]), ScrabbleParser.parseTirage(tok[1]));
-						}
-
-					}
-
-				}
-
-			}
-
-			for (int i = 0; i < ScrabbleImpl.size; i++) {
-				char[] lettres = getLettreColonne(i);
-				for (int j = 0; j < lettres.length; j++) {
-					char l = lettres[j];
-					tirage += l;
-					ana = nana.getAnagramme(tirage);
-					for (String str : ana) {
-						for (int k = 0; k < ScrabbleImpl.size; k++) {
-							Lettre[] mot = Lettre.stringToArray(str);
-							if (lMot.contains(str))
-								continue;
-							try {
-								newSc.placerMot(mot, k, j, false);
-								System.out.println("\tplacerMot(" + str + " ," + j + " ," + k + " ,false);");
-								if (sc.isValidPlacement(newSc.send())) {
-									return newSc;
-								}
-							} catch (Error e) {
-								System.out.println("placerMot(" + str + " ," + j + " ," + k + " ,false);");
-							}
-							String tok[] = sc.send().split("/");
-							newSc = new ScrabbleImpl();
-							newSc.init(ScrabbleParser.parseGrille(tok[0]), ScrabbleParser.parseTirage(tok[1]));
-						}
-
-					}
-
-				}
-
-			}
-		}
-		return sc;
-	}
-
-	private char[] getLettreLigne(int x) {
-		String ret = "";
-		for (int i = 0; i < ScrabbleImpl.size; i++) {
-			if (sc.getLettre(x, i) != Lettre.VIDE) {
-				ret += sc.getLettre(x, i).toString();
-			}
-		}
-		return ret.toCharArray();
-	}
-
-	private char[] getLettreColonne(int y) {
-		String ret = "";
-		for (int i = 0; i < ScrabbleImpl.size; i++) {
-			if (sc.getLettre(i, y) != Lettre.VIDE) {
-				ret += sc.getLettre(i, y).toString();
-			}
-		}
-		return ret.toCharArray();
+		write(StaticRequete.trouve + "/" + placement.split("/")[0] + "/");
 	}
 
 	public static void main(String[] args) throws Exception {
