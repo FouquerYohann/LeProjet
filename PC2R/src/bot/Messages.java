@@ -11,7 +11,7 @@ public class Messages {
 	private static Random	r			= new Random();
 
 	public static void sendMessage(String user, BufferedWriter bf) throws IOException {
-		bf.write(StaticRequete.message + "/" + user + "/" + message[r.nextInt(message.length)] + "/");
+		bf.write(StaticRequete.envoi + "/" + user + "/" + message[r.nextInt(message.length)] + "/");
 		try {
 			Thread.sleep(r.nextInt(50)*1000);
 		} catch (InterruptedException e) {}

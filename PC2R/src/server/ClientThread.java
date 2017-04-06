@@ -11,20 +11,21 @@ import java.util.concurrent.TimeUnit;
 import enums.ClientState;
 import enums.PartieState;
 import enums.Raisons;
+import scrabble.ScrabbleImpl;
+import scrabble.ScrabbleService;
 import server.staticvalue.StaticRequete;
-import service.ScrabbleService;
 
 public class ClientThread extends Thread {
-	private String			nom			= null;
-	private Socket			sock;
-	private ScrabbleService	sc			= null;
-	private ClientState		clientState	= ClientState.connecting;
-	private Server			server;
-	private BufferedReader	inBR		= null;
-	private BufferedWriter	outBW		= null;
-	private int				score		= 0;
-	private ScrabbleService	scJoue		= null;
-	private int				scoreTour	= 0;
+	private String nom = null;
+	private Socket sock;
+	private ScrabbleService sc = null;
+	private ClientState clientState = ClientState.connecting;
+	private Server server;
+	private BufferedReader inBR = null;
+	private BufferedWriter outBW = null;
+	private int score = 0;
+	private ScrabbleService scJoue = null;
+	private int scoreTour = 0;
 
 	public ClientThread(Socket sock, Server server) {
 		super();
@@ -32,10 +33,8 @@ public class ClientThread extends Thread {
 		this.sock = sock;
 		this.server = server;
 		try {
-			inBR = new BufferedReader(new InputStreamReader(
-					sock.getInputStream()));
-			outBW = new BufferedWriter(new OutputStreamWriter(
-					sock.getOutputStream()));
+			inBR = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			outBW = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 		} catch (IOException e) {
 			disconnect();
 		}
@@ -46,13 +45,13 @@ public class ClientThread extends Thread {
 		try {
 			handle(sock);
 		} catch (Throwable e) {
-//			e.printStackTrace();
-//			System.err.println(e.getMessage());
+			// e.printStackTrace();
+			// System.err.println(e.getMessage());
 			disconnect();
 		}
 	}
 
-	public void handle(Socket sock) throws IOException,InterruptedException {
+	public void handle(Socket sock) throws IOException, InterruptedException {
 
 		while (true) {
 			String received = inBR.readLine();
@@ -72,8 +71,7 @@ public class ClientThread extends Thread {
 					refus();
 				}
 				clientState = ClientState.playing;
-				write(server.retourConnection() + score + "/"
-						+ server.getPartieState().getValue() + "/"
+				write(server.retourConnection() + score + "/" + server.getPartieState().getValue() + "/"
 						+ server.getTempsTour() + "/");
 				server.connecte(tok[1]);
 
@@ -86,10 +84,12 @@ public class ClientThread extends Thread {
 				TimeUnit.MILLISECONDS.sleep(500);
 				server.best_player();
 
-			}  else if (requete.equals(StaticRequete.message) && tok.length == 2) {
-				server.retourMessage(nom,tok[1]);
+			} else if (requete.equals(StaticRequete.envoi) && tok.length == 2) {
+				server.retourMessage(nom, tok[1], false, null);
+			} else if (requete.equals(StaticRequete.penvoi) && tok.length == 3) {
+				server.retourMessage(nom, tok[2], true, tok[1]);
 
-			}else {
+			} else {
 				// DEFAULT
 				error();
 
@@ -143,10 +143,9 @@ public class ClientThread extends Thread {
 	}
 
 	public void write(String str) {
-		System.out.println("\t" + this.getNom() + "[" + this.getName() + "] "
-				+ str);
+		System.out.println("\t" + this.getNom() + "[" + this.getName() + "] " + str);
 		try {
-			outBW.write(str+"\n");
+			outBW.write(str);
 			outBW.flush();
 		} catch (IOException e) {
 			System.err.println("Error write");
@@ -162,13 +161,13 @@ public class ClientThread extends Thread {
 		}
 	}
 
-	public void interruptRecherche(){
+	public void interruptRecherche() {
 		System.out.println("fin recherche");
 		synchronized (server) {
 			server.notify();
 		}
 	}
-	
+
 	public String getNom() {
 		return nom;
 	}
@@ -231,5 +230,5 @@ public class ClientThread extends Thread {
 	public void updateScore() {
 		score += scoreTour;
 	}
-	
+
 }

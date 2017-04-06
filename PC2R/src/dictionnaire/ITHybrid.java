@@ -1,4 +1,4 @@
-package THybrid;
+package dictionnaire;
 
 
 import java.util.ArrayList;

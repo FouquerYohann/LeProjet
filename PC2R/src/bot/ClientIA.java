@@ -12,11 +12,11 @@ import java.util.Scanner;
 
 import enums.Lettre;
 import enums.PartieState;
-import server.ScrabbleImpl;
-import server.ScrabbleParser;
+import scrabble.ScrabbleImpl;
+import scrabble.ScrabbleParser;
+import scrabble.ScrabbleService;
 import server.staticvalue.StaticRequete;
 import server.staticvalue.StaticState;
-import service.ScrabbleService;
 
 public class ClientIA implements Runnable {
 	private static final int	port	= 2018;

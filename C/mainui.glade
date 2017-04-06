@@ -28,6 +28,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_right">14</property>
+                <property name="justification">center</property>
                 <property name="input_purpose">alpha</property>
                 <property name="monospace">True</property>
               </object>
@@ -45,7 +46,7 @@
                 <property name="layout_style">start</property>
                 <child>
                   <object class="GtkButton" id="trouve_button">
-                    <property name="label" translatable="yes">Trouve</property>
+                    <property name="label" translatable="yes">Proposer</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -59,7 +60,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="sort_button">
-                    <property name="label" translatable="yes">Sort</property>
+                    <property name="label" translatable="yes">Deconnexion</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -149,7 +150,7 @@
                 </child>
                 <child>
                   <object class="GtkButton">
-                    <property name="label" translatable="yes">Send</property>
+                    <property name="label" translatable="yes">Envoyer</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>

@@ -1,4 +1,4 @@
-package server;
+package scrabble;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,6 @@ import dictionnaire.IDico;
 import enums.Lettre;
 import enums.PowerUp;
 import enums.Raisons;
-import service.ScrabbleService;
 
 public class ScrabbleImpl implements ScrabbleService {
 	private Lettre[][]			plateau;

@@ -3,9 +3,10 @@ package bot;
 import java.util.ArrayList;
 
 import enums.Lettre;
-import server.ScrabbleImpl;
-import server.ScrabbleParser;
-import service.ScrabbleService;
+import scrabble.ScrabbleImpl;
+import scrabble.ScrabbleParser;
+import scrabble.ScrabbleService;
+
 
 public class ChercheurMot {
 	private ArrayList<String>	solutions	= new ArrayList<String>();

@@ -1,4 +1,4 @@
-package contract;
+package scrabble;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import service.ScrabbleService;
 import dictionnaire.Dico;
 import dictionnaire.IDico;
 import enums.Lettre;

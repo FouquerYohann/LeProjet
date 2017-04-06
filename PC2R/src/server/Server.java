@@ -9,18 +9,19 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 
-import contract.ScrabbleContract;
 import enums.ClientState;
 import enums.PartieState;
+import scrabble.ScrabbleContract;
+import scrabble.ScrabbleImpl;
+import scrabble.ScrabbleService;
 import server.save.SaveProfil;
 import server.staticvalue.StaticRequete;
 import server.temps.Chrono;
 import server.temps.ChronometreLayout;
-import service.ScrabbleService;
 
 public class Server implements Observer {
 	private final String			saveFic			= "save";
-	private final static int		portDefault		= 2018;
+	private final static int		portDefault		= 2017;
 	private ServerSocket			Ssock;
 	private ArrayList<ClientThread>	listClient		= new ArrayList<ClientThread>();
 	private ScrabbleService			partie			= new ScrabbleContract(new ScrabbleImpl());
@@ -156,12 +157,17 @@ public class Server implements Observer {
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.sfin + "/");
-				try {
-					TimeUnit.MILLISECONDS.sleep(500);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				cT.updateScore();
+			}
+		}	
+		try {
+			TimeUnit.MILLISECONDS.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (ClientThread cT : listClient) {
+			if (cT.getClientState() == ClientState.playing) {
 				cT.write(StaticRequete.bilan + "/" + bilanTour() + "/");
 			}
 		}
@@ -229,10 +235,19 @@ public class Server implements Observer {
 		return scores;
 	}
 
-public void retourMessage(String name,String message) {
-		for (ClientThread cT : listClient) {
-			if (cT.getClientState() == ClientState.playing) {
-				cT.write(StaticRequete.retMessage + "/"+name+"/"+message);
+public void retourMessage(String name,String message,boolean priv,String dest) {
+		if(!priv){
+			for (ClientThread cT : listClient) {
+				if (cT.getClientState() == ClientState.playing) {
+					cT.write(StaticRequete.reception + "/"+message+"/"+name);
+				}
+			}
+		}else {
+			for (ClientThread cT : listClient) {
+				if (cT.getClientState() == ClientState.playing) {
+					if(cT.getNom().equals(dest))
+						cT.write(StaticRequete.preception + "/"+message+"/"+name);
+				}
 			}
 		}
 	}
@@ -247,7 +262,6 @@ public void retourMessage(String name,String message) {
 		ScrabbleService best = partie;
 		for (ClientThread cT : listClient) {
 			if (cT.getClientState() == ClientState.playing) {
-				cT.updateScore();
 				int scoreIt = cT.getScoreTour();
 				if (scoreIt > bestScore) {
 					bestScore = scoreIt;

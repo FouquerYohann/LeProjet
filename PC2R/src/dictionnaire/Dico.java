@@ -1,17 +1,12 @@
 package dictionnaire;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.Scanner;
 
-import THybrid.ITHybrid;
-import THybrid.THybrid;
 import enums.Lettre;
 
 public class Dico implements IDico {
@@ -55,7 +50,9 @@ public class Dico implements IDico {
 					thyb.insertion(line);
 				}
 			}
+			s.close();
 		} catch (Throwable e) {
+			
 			return getDicoTHybrid();
 		}
 		return thyb;
@@ -66,7 +63,7 @@ public class Dico implements IDico {
 		THybrid thyb=new THybrid();
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader("dico/dic.txt"));
+			br = new BufferedReader(new FileReader(path));
 			String line;
 			while ((line = br.readLine()) != null)
 				thyb.insertion(line);

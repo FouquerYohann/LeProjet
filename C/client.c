@@ -62,7 +62,7 @@ G_MODULE_EXPORT void on_click_trouve(GtkWidget *widget, gpointer data)
 G_MODULE_EXPORT void on_click_send(GtkWidget *widget, gpointer data)
 {
 
-	GtkEntry* chat=(GtkEntry*)widget;
+	GtkEntry* chat=(GtkEntry*)data;
 	const gchar* text=gtk_entry_get_text(chat);
 	if(text[0]=='@'){
 		char* tmp=strdup(text+1);
@@ -174,17 +174,14 @@ static void* app(void* data)
 
 			if(strcmp(toks[0],"CONNECTE")==0){
 				printf("Un nouveau joueur est arrivé : %s\n", toks[1]);
-				p->other_users=addUserNameScore(p->other_users,toks[1],"0");
 			}
 			else if(strcmp(toks[0],"DECONNEXION")==0){
 				printf("Le joueur %s s'est deconnecte\n", toks[1]);
-				p->other_users=deleteUser(p->other_users,getUserByName(p->other_users,toks[1]));
-
 			}
 			else if(strcmp(toks[0],"SESSION")==0){
 				printf("debut d'une nouvelle session\n");
-				p->sc=initScrabble();
 				
+				p->sc=initScrabble();
 				gtk_label_set_text(phase_label,"phase : Recherche");
 			}
 			else if(strcmp(toks[0],"VAINQUEUR")==0){
@@ -192,9 +189,6 @@ static void* app(void* data)
 			}
 			else if(strcmp(toks[0],"TOUR")==0){
 				printf("un nouveau tour. plateau %s tirage %s\n",toks[1],toks[2]);
-	
-				setGrille(p->sc,toks[1]);
-				setTirage(p->sc,toks[2]);
 
 				gtk_label_set_text(phase_label,"phase : Recherche");
 				set_new_buffer_withmarkup(scrabble_buffer,strdup(toks[1]),strdup(toks[2]));
@@ -202,8 +196,8 @@ static void* app(void* data)
 			}
 			else if(strcmp(toks[0],"RVALIDE")==0){
 				printf("Placement valide, fin de la p->phase de recherche\n");
-				gtk_label_set_text(phase_label,"phase : Soumission");
 				
+				gtk_label_set_text(phase_label,"phase : Soumission");
 			}
 			else if(strcmp(toks[0],"RINVALIDE")==0){
 				printf("placement invalide pour la raison %s\n",toks[1]);
@@ -213,8 +207,8 @@ static void* app(void* data)
 			}
 			else if(strcmp(toks[0],"RFIN")==0){
 				printf("expiration du delai de recherche, fin de la phase de recherche\n");
-				temps1=time(NULL);
 				
+				temps1=time(NULL);
 				gtk_label_set_text(phase_label,"phase : Soumission");
 			}
 			else if(strcmp(toks[0],"SVALIDE")==0){
@@ -225,11 +219,13 @@ static void* app(void* data)
 			}
 			else if(strcmp(toks[0],"SFIN")==0){
 				printf("expiration du delai de soumission fin de la phase de soumission\n");
+				
 				temps1=time(NULL);
 				gtk_label_set_text(phase_label,"phase : Resultat");
 			}	
 			else if(strcmp(toks[0],"BILAN")==0){
 				printf("bilan du tour mot %s par %s \n",toks[1],toks[2]);
+				
 				temps1=time(NULL);
 				char* tmp=strdup(toks[3]);
 				nb_args=string_split(toks,tmp,"*");
@@ -244,17 +240,21 @@ static void* app(void* data)
 					}
 				}
 				gtk_label_set_text(best_player_label,"Soumettez un mot");
-			}else if (strcmp(toks[0],"RECEPTION")==0){
+			}
+			else if (strcmp(toks[0],"RECEPTION")==0){
 				printf("Recu un nouveau message de %s : %s \n", toks[2],toks[1]);
+
 				set_chat_text(chat_text_buffer,toks[2],toks[1],0);
-
-			} else if (strcmp(toks[0],"PRECEPTION")==0){
+			}
+			else if (strcmp(toks[0],"PRECEPTION")==0){
 				printf("Recu un nouveau message privé de %s : %s \n", toks[2],toks[1]);
+				
 				set_chat_text(chat_text_buffer,toks[2],toks[1],1);
-
-			} else if(strcmp(toks[0],"MEILLEUR")==0){
+			}
+			else if(strcmp(toks[0],"MEILLEUR")==0){
 
 				char* tmp=(strcmp(toks[1],"1")==0)?"Vous avez le meilleur mot ce tour":"vous n'avez pas le meilleur mot ce tour";
+				printf("%s\n", tmp);
 				gtk_label_set_text(best_player_label,tmp);
 			}
 			else{
@@ -382,10 +382,6 @@ int main(int argc, char **argv)
 		GtkTextBuffer* scrabble_buffer=gtk_text_view_get_buffer(scrabble_text_view);
 		
 		set_new_buffer_withmarkup(scrabble_buffer,strdup(toks[1]),strdup(toks[2]));
-
-
-		setGrille(p->sc,toks[1]);
-		setTirage(p->sc,toks[2]);
 
 
 		GtkLabel* phase_label=(GtkLabel*) gtk_builder_get_object(build,"phase_label");

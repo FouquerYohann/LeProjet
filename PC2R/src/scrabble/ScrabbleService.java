@@ -1,4 +1,4 @@
-package service;
+package scrabble;
 
 import java.util.Collection;
 

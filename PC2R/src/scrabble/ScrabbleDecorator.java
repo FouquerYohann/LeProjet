@@ -1,11 +1,10 @@
-package contract;
+package scrabble;
 
 import java.util.Collection;
 
 import enums.Lettre;
 import enums.PowerUp;
 import enums.Raisons;
-import service.ScrabbleService;
 
 public class ScrabbleDecorator implements ScrabbleService {
 	private ScrabbleService sc;

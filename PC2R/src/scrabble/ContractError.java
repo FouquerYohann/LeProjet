@@ -1,4 +1,4 @@
-package contract;
+package scrabble;
 
 public class ContractError extends Error {
 
